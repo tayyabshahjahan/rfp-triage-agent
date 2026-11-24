@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import re
 from datetime import UTC, date, datetime, time, timedelta
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
@@ -24,6 +25,33 @@ def _fold(line: str) -> list[str]:
     return lines
 
 
+def _parse_time(value: object) -> time | None:
+    text = str(value).strip()
+    try:
+        return time.fromisoformat(text)
+    except ValueError:
+        pass
+
+    match = re.search(
+        r"(?i)\b(\d{1,2})(?::(\d{2}))?(?::(\d{2}))?\s*(AM|PM)?\b",
+        text,
+    )
+    if not match:
+        return None
+    hour = int(match.group(1))
+    minute = int(match.group(2) or 0)
+    second = int(match.group(3) or 0)
+    meridiem = (match.group(4) or "").upper()
+    if meridiem:
+        if not 1 <= hour <= 12:
+            return None
+        hour = hour % 12 + (12 if meridiem == "PM" else 0)
+    try:
+        return time(hour, minute, second)
+    except ValueError:
+        return None
+
+
 def _event_lines(event: dict[str, object], stamp: datetime) -> list[str]:
     event_date = date.fromisoformat(str(event["date"]))
     event_time = event.get("time")
@@ -41,8 +69,8 @@ def _event_lines(event: dict[str, object], stamp: datetime) -> list[str]:
         f"SUMMARY:{_escape(str(event['title']))}",
         f"DESCRIPTION:{_escape(description)}",
     ]
-    if event_time:
-        local_time = time.fromisoformat(str(event_time))
+    local_time = _parse_time(event_time) if event_time else None
+    if local_time is not None:
         naive = datetime.combine(event_date, local_time)
         timezone_name = event.get("timezone")
         if timezone_name:

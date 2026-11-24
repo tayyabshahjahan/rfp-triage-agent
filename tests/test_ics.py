@@ -11,7 +11,7 @@ def test_ics_parses_and_converts_timed_event_to_utc():
             {
                 "title": "Proposal due",
                 "date": "2027-01-15",
-                "time": "15:00",
+                "time": "3:00 PM",
                 "timezone": "America/Los_Angeles",
                 "source": "deadline",
                 "evidence": {
@@ -41,3 +41,22 @@ def test_ics_parses_and_converts_timed_event_to_utc():
     assert len(events) == 2
     assert events[0].decoded("DTSTART").hour == 23
     assert events[1].decoded("DTSTART").isoformat() == "2027-01-14"
+
+
+def test_ics_invalid_time_falls_back_to_all_day():
+    data = build_ics(
+        [
+            {
+                "title": "Date with unclear time",
+                "date": "2027-02-01",
+                "time": "time to be confirmed",
+                "timezone": "America/New_York",
+                "source": "deadline",
+                "evidence": {"quote": "February 1, time to be confirmed", "page": 2},
+            }
+        ],
+        now=datetime(2026, 11, 25, tzinfo=UTC),
+    )
+    calendar = Calendar.from_ical(data)
+    event = next(component for component in calendar.walk() if component.name == "VEVENT")
+    assert event.decoded("DTSTART").isoformat() == "2027-02-01"
