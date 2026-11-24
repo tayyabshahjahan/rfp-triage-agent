@@ -1,0 +1,286 @@
+"""LangGraph orchestration for the evidence-first RFP pipeline."""
+
+from __future__ import annotations
+
+import time
+from collections.abc import Callable
+from datetime import date
+from typing import Any, TypedDict
+
+from langgraph.graph import END, START, StateGraph
+
+from .config import GEMINI_MODEL, MAX_REPAIR_ATTEMPTS
+from .llm import LlmError, generate_json
+from .pdf_ingest import extract_pdf, number_pages, validate_pages
+from .profile import IDIAZ_PROFILE
+from .prompts import assess_prompt, extract_prompt, repair_prompt
+from .report import build_report
+from .schemas import (
+    Assessment,
+    Extraction,
+    FinalReport,
+    RepairResult,
+    TraceEvent,
+    VerificationSummary,
+)
+from .scoring import score_assessment
+from .verify import (
+    apply_patches,
+    ensure_gate_ids,
+    failing_item_payload,
+    verify_extraction,
+)
+
+LlmFunction = Callable[[str, type[Any]], Any]
+ProgressFunction = Callable[[TraceEvent], None]
+
+
+class GraphState(TypedDict, total=False):
+    file_name: str
+    file_bytes: bytes
+    pages: list[str]
+    numbered_text: str
+    extraction: Extraction
+    verification: VerificationSummary
+    attempt: int
+    assessment: Assessment
+    score: dict[str, object]
+    report: FinalReport
+    trace: list[TraceEvent]
+    error: str
+    as_of: date
+    started: float
+
+
+def _verified_copy(extraction: Extraction) -> Extraction:
+    """Remove unsupported evidence before the profile-aware judgment call."""
+
+    clean = extraction.model_copy(deep=True)
+    for _, fact in clean.facts:
+        if fact.evidence is not None and not fact.evidence.verified:
+            fact.value = "Not stated"
+            fact.evidence = None
+    clean.dates = [item for item in clean.dates if item.evidence.verified]
+    clean.requirements = [item for item in clean.requirements if item.evidence.verified]
+    clean.gate_candidates = [item for item in clean.gate_candidates if item.evidence.verified]
+    clean.ambiguities = [item for item in clean.ambiguities if item.evidence.verified]
+    return clean
+
+
+class RfpTriagePipeline:
+    def __init__(self, llm: LlmFunction = generate_json, model: str = GEMINI_MODEL):
+        self.llm = llm
+        self.model = model
+        self.graph = self._build_graph()
+
+    @staticmethod
+    def _event(state: GraphState, node: str, started: float, note: str = "") -> list[TraceEvent]:
+        return [
+            *state.get("trace", []),
+            TraceEvent(
+                node=node,
+                status="ok",
+                seconds=round(time.perf_counter() - started, 3),
+                note=note,
+            ),
+        ]
+
+    def _ingest(self, state: GraphState) -> dict[str, object]:
+        started = time.perf_counter()
+        if state.get("pages"):
+            pages = state["pages"]
+            validate_pages(pages)
+            numbered_text = number_pages(pages)
+        else:
+            pages, numbered_text = extract_pdf(state["file_bytes"], state["file_name"])
+        return {
+            "pages": pages,
+            "numbered_text": numbered_text,
+            "trace": self._event(state, "ingest", started, f"{len(pages)} pages"),
+        }
+
+    def _analyze(self, state: GraphState) -> dict[str, object]:
+        started = time.perf_counter()
+        extraction = self.llm(extract_prompt(state["numbered_text"]), Extraction)
+        ensure_gate_ids(extraction)
+        return {
+            "extraction": extraction,
+            "trace": self._event(
+                state,
+                "analyze",
+                started,
+                f"{len(extraction.requirements)} requirements",
+            ),
+        }
+
+    def _verify(self, state: GraphState) -> dict[str, object]:
+        started = time.perf_counter()
+        verification = verify_extraction(state["extraction"], state["pages"])
+        verification.retries_used = state.get("attempt", 0)
+        return {
+            "extraction": state["extraction"],
+            "verification": verification,
+            "trace": self._event(
+                state,
+                "verify",
+                started,
+                f"{verification.verified}/{verification.total_items} verified",
+            ),
+        }
+
+    @staticmethod
+    def _route_after_verify(state: GraphState) -> str:
+        if state["verification"].unverified and state.get("attempt", 0) < MAX_REPAIR_ATTEMPTS:
+            return "repair"
+        if state["extraction"].relevance.level == "NONE":
+            return "assess_fast"
+        return "assess_full"
+
+    def _repair(self, state: GraphState) -> dict[str, object]:
+        started = time.perf_counter()
+        failing = failing_item_payload(state["extraction"], state["verification"].failing_ids)
+        repaired = self.llm(repair_prompt(state["numbered_text"], failing), RepairResult)
+        apply_patches(state["extraction"], repaired.patches)
+        return {
+            "extraction": state["extraction"],
+            "attempt": state.get("attempt", 0) + 1,
+            "trace": self._event(state, "repair", started, f"{len(repaired.patches)} patches"),
+        }
+
+    def _assess(self, state: GraphState, *, fast: bool) -> dict[str, object]:
+        started = time.perf_counter()
+        clean = _verified_copy(state["extraction"])
+        prompt = assess_prompt(clean.model_dump_json(), IDIAZ_PROFILE, fast=fast)
+        assessment = self.llm(prompt, Assessment)
+        factor_names = [factor.factor for factor in assessment.fit_factors]
+        if fast:
+            if factor_names != ["scope_fit"] or assessment.fit_factors[0].score > 1:
+                raise LlmError("Fast assessment returned an invalid fit factor.")
+        elif factor_names != [
+            "scope_fit",
+            "eligibility",
+            "delivery_feasibility",
+            "commercial_risk",
+        ]:
+            raise LlmError("Full assessment returned the wrong fit factors.")
+        node = "assess_fast" if fast else "assess_full"
+        return {
+            "assessment": assessment,
+            "trace": self._event(state, node, started, assessment.decision),
+        }
+
+    def _assess_full(self, state: GraphState) -> dict[str, object]:
+        return self._assess(state, fast=False)
+
+    def _assess_fast(self, state: GraphState) -> dict[str, object]:
+        return self._assess(state, fast=True)
+
+    def _guardrails(self, state: GraphState) -> dict[str, object]:
+        started = time.perf_counter()
+        score = score_assessment(state["assessment"])
+        note = f"{score['decision']} {score['fit_score']}/10"
+        return {
+            "score": score,
+            "trace": self._event(state, "guardrails", started, note),
+        }
+
+    def _build_report(self, state: GraphState) -> dict[str, object]:
+        started = time.perf_counter()
+        total_seconds = time.perf_counter() - state["started"]
+        report = build_report(
+            extraction=state["extraction"],
+            assessment=state["assessment"],
+            verification=state["verification"],
+            file_name=state["file_name"],
+            page_count=len(state["pages"]),
+            model=self.model,
+            seconds=total_seconds,
+            as_of=state["as_of"],
+        )
+        return {
+            "report": report,
+            "trace": self._event(state, "build_report", started, "report ready"),
+        }
+
+    def _build_graph(self):
+        builder = StateGraph(GraphState)
+        builder.add_node("ingest", self._ingest)
+        builder.add_node("analyze", self._analyze)
+        builder.add_node("verify", self._verify)
+        builder.add_node("repair", self._repair)
+        builder.add_node("assess_full", self._assess_full)
+        builder.add_node("assess_fast", self._assess_fast)
+        builder.add_node("guardrails", self._guardrails)
+        builder.add_node("build_report", self._build_report)
+        builder.add_edge(START, "ingest")
+        builder.add_edge("ingest", "analyze")
+        builder.add_edge("analyze", "verify")
+        builder.add_conditional_edges(
+            "verify",
+            self._route_after_verify,
+            {
+                "repair": "repair",
+                "assess_full": "assess_full",
+                "assess_fast": "assess_fast",
+            },
+        )
+        builder.add_edge("repair", "verify")
+        builder.add_edge("assess_full", "guardrails")
+        builder.add_edge("assess_fast", "guardrails")
+        builder.add_edge("guardrails", "build_report")
+        builder.add_edge("build_report", END)
+        return builder.compile()
+
+    def _run(self, initial: GraphState, progress: ProgressFunction | None = None) -> FinalReport:
+        last_trace_count = 0
+        final_state: GraphState | None = None
+        for state in self.graph.stream(initial, stream_mode="values"):
+            final_state = state
+            events = state.get("trace", [])
+            if progress:
+                for event in events[last_trace_count:]:
+                    progress(event)
+            last_trace_count = len(events)
+        if final_state is None or "report" not in final_state:
+            raise RuntimeError("The graph ended without a report.")
+        return final_state["report"]
+
+    def run_pdf(
+        self,
+        file_bytes: bytes,
+        file_name: str,
+        *,
+        as_of: date | None = None,
+        progress: ProgressFunction | None = None,
+    ) -> FinalReport:
+        return self._run(
+            {
+                "file_name": file_name,
+                "file_bytes": file_bytes,
+                "attempt": 0,
+                "trace": [],
+                "as_of": as_of or date.today(),
+                "started": time.perf_counter(),
+            },
+            progress,
+        )
+
+    def run_pages(
+        self,
+        pages: list[str],
+        *,
+        file_name: str = "fixture.pdf",
+        as_of: date | None = None,
+        progress: ProgressFunction | None = None,
+    ) -> FinalReport:
+        return self._run(
+            {
+                "file_name": file_name,
+                "pages": pages,
+                "attempt": 0,
+                "trace": [],
+                "as_of": as_of or date.today(),
+                "started": time.perf_counter(),
+            },
+            progress,
+        )
