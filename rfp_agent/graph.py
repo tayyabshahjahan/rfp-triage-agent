@@ -13,12 +13,13 @@ from .config import GEMINI_MODEL, MAX_REPAIR_ATTEMPTS
 from .llm import LlmError, generate_json
 from .pdf_ingest import extract_pdf, number_pages, validate_pages
 from .profile import IDIAZ_PROFILE
-from .prompts import assess_prompt, extract_prompt, repair_prompt
+from .prompts import assess_prompt, extract_prompt, recall_prompt, repair_prompt
 from .report import build_report
 from .schemas import (
     Assessment,
     Extraction,
     FinalReport,
+    RecallResult,
     RepairResult,
     TraceEvent,
     VerificationSummary,
@@ -28,6 +29,7 @@ from .verify import (
     apply_patches,
     ensure_gate_ids,
     failing_item_payload,
+    merge_recall,
     verify_extraction,
 )
 
@@ -42,6 +44,7 @@ class GraphState(TypedDict, total=False):
     numbered_text: str
     extraction: Extraction
     verification: VerificationSummary
+    recall_done: bool
     attempt: int
     assessment: Assessment
     score: dict[str, object]
@@ -63,6 +66,10 @@ def _verified_copy(extraction: Extraction) -> Extraction:
     clean.dates = [item for item in clean.dates if item.evidence.verified]
     clean.requirements = [item for item in clean.requirements if item.evidence.verified]
     clean.gate_candidates = [item for item in clean.gate_candidates if item.evidence.verified]
+    for item in clean.gate_candidates:
+        if item.consequence_evidence is None or not item.consequence_evidence.verified:
+            item.consequence = "Not stated"
+            item.consequence_evidence = None
     clean.ambiguities = [item for item in clean.ambiguities if item.evidence.verified]
     return clean
 
@@ -130,11 +137,36 @@ class RfpTriagePipeline:
 
     @staticmethod
     def _route_after_verify(state: GraphState) -> str:
+        if not state.get("recall_done", False):
+            return "recall"
         if state["verification"].unverified and state.get("attempt", 0) < MAX_REPAIR_ATTEMPTS:
             return "repair"
         if state["extraction"].relevance.level == "NONE":
             return "assess_fast"
         return "assess_full"
+
+    def _recall(self, state: GraphState) -> dict[str, object]:
+        started = time.perf_counter()
+        extraction = state["extraction"]
+        recalled = self.llm(
+            recall_prompt(
+                state["numbered_text"],
+                [item.model_dump(mode="json") for item in extraction.requirements],
+                [item.model_dump(mode="json") for item in extraction.dates],
+            ),
+            RecallResult,
+        )
+        requirements_added, dates_added = merge_recall(extraction, recalled)
+        return {
+            "extraction": extraction,
+            "recall_done": True,
+            "trace": self._event(
+                state,
+                "recall",
+                started,
+                f"{requirements_added} requirements, {dates_added} dates added",
+            ),
+        }
 
     def _repair(self, state: GraphState) -> dict[str, object]:
         started = time.perf_counter()
@@ -207,6 +239,7 @@ class RfpTriagePipeline:
         builder.add_node("ingest", self._ingest)
         builder.add_node("analyze", self._analyze)
         builder.add_node("verify", self._verify)
+        builder.add_node("recall", self._recall)
         builder.add_node("repair", self._repair)
         builder.add_node("assess_full", self._assess_full)
         builder.add_node("assess_fast", self._assess_fast)
@@ -219,11 +252,13 @@ class RfpTriagePipeline:
             "verify",
             self._route_after_verify,
             {
+                "recall": "recall",
                 "repair": "repair",
                 "assess_full": "assess_full",
                 "assess_fast": "assess_fast",
             },
         )
+        builder.add_edge("recall", "verify")
         builder.add_edge("repair", "verify")
         builder.add_edge("assess_full", "guardrails")
         builder.add_edge("assess_fast", "guardrails")
@@ -258,6 +293,7 @@ class RfpTriagePipeline:
                 "file_name": file_name,
                 "file_bytes": file_bytes,
                 "attempt": 0,
+                "recall_done": False,
                 "trace": [],
                 "as_of": as_of or date.today(),
                 "started": time.perf_counter(),
@@ -278,6 +314,7 @@ class RfpTriagePipeline:
                 "file_name": file_name,
                 "pages": pages,
                 "attempt": 0,
+                "recall_done": False,
                 "trace": [],
                 "as_of": as_of or date.today(),
                 "started": time.perf_counter(),

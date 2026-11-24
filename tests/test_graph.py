@@ -3,7 +3,7 @@ from datetime import date
 from conftest import DOCUMENT_TEXT, extraction_fixture, full_assessment
 
 from rfp_agent.graph import RfpTriagePipeline
-from rfp_agent.schemas import Assessment, Extraction, RepairResult
+from rfp_agent.schemas import Assessment, Extraction, RecallResult, RepairResult
 
 
 class FakeLLM:
@@ -15,6 +15,8 @@ class FakeLLM:
         if schema is Extraction:
             quote = "Unsupported agency quote" if self.needs_repair else "Port Alder"
             return extraction_fixture(relevance=self.relevance, agency_quote=quote)
+        if schema is RecallResult:
+            return RecallResult()
         if schema is RepairResult:
             return RepairResult.model_validate(
                 {
@@ -62,7 +64,10 @@ def test_full_route_builds_bid_report():
     )
     assert report.decision == "BID"
     assert report.fit_score == 7
-    assert "assess_full" in [event.node for event in trace]
+    nodes = [event.node for event in trace]
+    assert nodes.count("recall") == 1
+    assert nodes.count("verify") == 2
+    assert "assess_full" in nodes
 
 
 def test_fast_route_is_decisive_no_bid():
@@ -72,7 +77,10 @@ def test_fast_route_is_decisive_no_bid():
     )
     assert report.decision == "NO_BID"
     assert report.fit_score <= 2
-    assert "assess_fast" in [event.node for event in trace]
+    nodes = [event.node for event in trace]
+    assert nodes.count("recall") == 1
+    assert nodes.count("verify") == 2
+    assert "assess_fast" in nodes
 
 
 def test_failed_quote_is_repaired_and_reverified():
@@ -83,5 +91,6 @@ def test_failed_quote_is_repaired_and_reverified():
     assert report.verification["unverified"] == 0
     assert report.verification["retries_used"] == 1
     nodes = [event.node for event in trace]
-    assert nodes.count("verify") == 2
+    assert nodes.count("recall") == 1
+    assert nodes.count("verify") == 3
     assert "repair" in nodes

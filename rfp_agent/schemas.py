@@ -103,6 +103,7 @@ class DateItem(StrictModel):
 
 
 class Requirement(StrictModel):
+    requirement_id: str | None = None
     category: RequirementCategory
     text: str
     mandatory: Literal["YES", "NO", "UNCLEAR"]
@@ -116,8 +117,18 @@ class GateCandidate(StrictModel):
     requirement: str
     action: str
     action_date: str | None = None
+    needs_agency_answer: bool = False
     consequence: str
+    consequence_evidence: Evidence | None = None
     evidence: Evidence
+
+    @model_validator(mode="after")
+    def stated_consequences_have_evidence(self) -> GateCandidate:
+        if self.consequence == "Not stated":
+            self.consequence_evidence = None
+        elif self.consequence_evidence is None:
+            self.consequence = "Not stated"
+        return self
 
 
 class Ambiguity(StrictModel):
@@ -171,6 +182,11 @@ class EvidencePatch(StrictModel):
 
 class RepairResult(StrictModel):
     patches: list[EvidencePatch]
+
+
+class RecallResult(StrictModel):
+    requirements: list[Requirement] = Field(default_factory=list)
+    dates: list[DateItem] = Field(default_factory=list)
 
 
 class VerificationSummary(StrictModel):

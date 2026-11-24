@@ -10,7 +10,16 @@ from dataclasses import dataclass
 from rapidfuzz.fuzz import partial_ratio
 
 from .config import FUZZY_MATCH_THRESHOLD
-from .schemas import Evidence, EvidencePatch, Extraction, VerificationSummary
+from .dates import normalize_time
+from .schemas import (
+    DateItem,
+    Evidence,
+    EvidencePatch,
+    Extraction,
+    RecallResult,
+    Requirement,
+    VerificationSummary,
+)
 
 _DASHES = dict.fromkeys(map(ord, "\u2010\u2011\u2012\u2013\u2014\u2015\u2212"), "-")
 _QUOTES = str.maketrans({"\u2018": "'", "\u2019": "'", "\u201c": '"', "\u201d": '"'})
@@ -29,6 +38,7 @@ class EvidenceRef:
     evidence: Evidence
     owner: object
     collection: str | None = None
+    attribute: str = "evidence"
 
 
 def ensure_gate_ids(extraction: Extraction) -> None:
@@ -47,6 +57,13 @@ def iter_evidence(extraction: Extraction) -> Iterable[EvidenceRef]:
         yield EvidenceRef(f"requirement:{index}", item.evidence, item, "requirements")
     for item in extraction.gate_candidates:
         yield EvidenceRef(f"gate:{item.gate_id}", item.evidence, item, "gate_candidates")
+        if item.consequence_evidence is not None:
+            yield EvidenceRef(
+                f"gate:{item.gate_id}:consequence",
+                item.consequence_evidence,
+                item,
+                attribute="consequence_evidence",
+            )
     for index, item in enumerate(extraction.ambiguities):
         yield EvidenceRef(f"ambiguity:{index}", item.evidence, item, "ambiguities")
 
@@ -125,11 +142,14 @@ def apply_patches(extraction: Extraction, patches: list[EvidencePatch]) -> None:
         if ref is None:
             continue
         if patch.evidence is not None:
-            ref.owner.evidence = patch.evidence  # type: ignore[attr-defined]
+            setattr(ref.owner, ref.attribute, patch.evidence)
             continue
         if patch.item_id.startswith("fact:"):
             ref.owner.value = "Not stated"  # type: ignore[attr-defined]
             ref.owner.evidence = None  # type: ignore[attr-defined]
+        elif patch.item_id.endswith(":consequence"):
+            ref.owner.consequence = "Not stated"  # type: ignore[attr-defined]
+            ref.owner.consequence_evidence = None  # type: ignore[attr-defined]
         elif ref.collection:
             collection = getattr(extraction, ref.collection)
             removals.setdefault(ref.collection, set()).add(collection.index(ref.owner))
@@ -142,3 +162,43 @@ def apply_patches(extraction: Extraction, patches: list[EvidencePatch]) -> None:
             [item for index, item in enumerate(collection) if index not in indices],
         )
     ensure_gate_ids(extraction)
+
+
+def _requirement_key(requirement: Requirement) -> tuple[str, str]:
+    requirement_id = normalize_text(str(requirement.requirement_id or ""))
+    if requirement_id:
+        return "id", requirement_id
+    return "text", normalize_text(requirement.text)
+
+
+def _date_key(item: DateItem) -> tuple[str, ...]:
+    kind = item.kind
+    key = (kind, item.date, normalize_time(item.time) or "")
+    if kind == "OTHER":
+        return (*key, normalize_text(item.what))
+    return key
+
+
+def merge_recall(extraction: Extraction, recall: RecallResult) -> tuple[int, int]:
+    """Merge only genuinely new recall items, preserving the initial extraction order."""
+
+    requirement_keys = {_requirement_key(item) for item in extraction.requirements}
+    added_requirements = 0
+    for item in recall.requirements:
+        key = _requirement_key(item)
+        if key in requirement_keys:
+            continue
+        extraction.requirements.append(item)
+        requirement_keys.add(key)
+        added_requirements += 1
+
+    date_keys = {_date_key(item) for item in extraction.dates}
+    added_dates = 0
+    for item in recall.dates:
+        key = _date_key(item)
+        if key in date_keys:
+            continue
+        extraction.dates.append(item)
+        date_keys.add(key)
+        added_dates += 1
+    return added_requirements, added_dates

@@ -11,7 +11,7 @@ def test_ics_parses_and_converts_timed_event_to_utc():
             {
                 "title": "Proposal due",
                 "date": "2027-01-15",
-                "time": "3:00 PM",
+                "time": "15:00",
                 "timezone": "America/Los_Angeles",
                 "source": "deadline",
                 "evidence": {

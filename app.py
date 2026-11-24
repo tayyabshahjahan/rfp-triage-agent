@@ -53,6 +53,7 @@ def evidence_rows(report: dict[str, object]) -> list[dict[str, object]]:
         add(str(item["text"]), item.get("evidence"))
     for item in report["gates"]:
         add(str(item["title"]), item.get("evidence"))
+        add(f"{item['title']} consequence", item.get("consequence_evidence"))
     for item in report["ambiguities"]:
         add(str(item["topic"]), item.get("evidence"))
     return rows
@@ -144,6 +145,7 @@ def render_report(report: dict[str, object]) -> None:
         st.dataframe(
             [
                 {
+                    "ID": item.get("requirement_id") or "",
                     "Mandatory": item["mandatory"],
                     "Requirement": item["text"],
                     "Page": item["evidence"]["page"],
@@ -197,17 +199,34 @@ def render_radar(report: dict[str, object]) -> None:
         for status in ["FAIL", "UNKNOWN", "PASS"]
     }
     upcoming = [
-        row for row in rows if row.get("days_remaining") is not None and row["days_remaining"] >= 0
+        item
+        for item in report["calendar"]
+        if item.get("days_remaining") is not None and item["days_remaining"] >= 0
     ]
-    next_action = min(upcoming, key=lambda row: row["days_remaining"]) if upcoming else None
+    next_action = (
+        min(
+            upcoming,
+            key=lambda item: (
+                item["days_remaining"],
+                str(item["date"]),
+                str(item.get("time") or ""),
+            ),
+        )
+        if upcoming
+        else None
+    )
     columns = st.columns(4)
     columns[0].metric("Fail", counts["FAIL"])
     columns[1].metric("Unknown", counts["UNKNOWN"])
     columns[2].metric("Pass", counts["PASS"])
     columns[3].metric(
         "Next action",
-        (f"{next_action['days_remaining']} days" if next_action else "Not stated"),
-        next_action["action_date"] if next_action else None,
+        str(next_action["date"]) if next_action else "Not stated",
+        (
+            f"{next_action['days_remaining']} days - {next_action['title']}"
+            if next_action
+            else None
+        ),
     )
 
     for row in rows:
@@ -229,6 +248,12 @@ def render_radar(report: dict[str, object]) -> None:
                 do_by += f" ({row['days_remaining']} days)"
             st.write(f"**Do by:** {do_by}")
             st.write(f"**Consequence:** {row['consequence']}")
+            consequence_evidence = row.get("consequence_evidence")
+            if consequence_evidence:
+                st.caption(
+                    f'Consequence evidence: "{consequence_evidence["quote"]}" - '
+                    f'page {consequence_evidence["page"]} - verified'
+                )
             evidence = row["evidence"]
             badge = "verified" if evidence.get("verified") else "UNVERIFIED"
             st.caption(f'"{evidence["quote"]}" - page {evidence["page"]} - {badge}')
