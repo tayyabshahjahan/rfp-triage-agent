@@ -60,3 +60,40 @@ def test_ics_invalid_time_falls_back_to_all_day():
     calendar = Calendar.from_ical(data)
     event = next(component for component in calendar.walk() if component.name == "VEVENT")
     assert event.decoded("DTSTART").isoformat() == "2027-02-01"
+
+
+def test_ics_accepts_explicit_month_name_date():
+    data = build_ics(
+        [
+            {
+                "title": "Mandatory meeting action",
+                "date": "December 3, 2026, 9:00 AM",
+                "time": None,
+                "timezone": None,
+                "source": "gate",
+                "evidence": {"quote": "December 3, 2026 at 9:00 AM", "page": 3},
+            }
+        ],
+        now=datetime(2026, 11, 25, tzinfo=UTC),
+    )
+    calendar = Calendar.from_ical(data)
+    event = next(component for component in calendar.walk() if component.name == "VEVENT")
+    assert event.decoded("DTSTART").isoformat() == "2026-12-03"
+
+
+def test_ics_skips_unparseable_date():
+    data = build_ics(
+        [
+            {
+                "title": "Unknown date",
+                "date": "Not stated",
+                "time": None,
+                "timezone": None,
+                "source": "gate",
+                "evidence": {"quote": "Timing will be announced", "page": 3},
+            }
+        ],
+        now=datetime(2026, 11, 25, tzinfo=UTC),
+    )
+    calendar = Calendar.from_ical(data)
+    assert not [component for component in calendar.walk() if component.name == "VEVENT"]

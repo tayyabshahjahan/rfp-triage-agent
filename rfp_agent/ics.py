@@ -7,6 +7,12 @@ import re
 from datetime import UTC, date, datetime, time, timedelta
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
+_MONTH_DATE = re.compile(
+    r"(?i)\b(?:January|February|March|April|May|June|July|August|September|"
+    r"October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)"
+    r"\s+\d{1,2},?\s+\d{4}\b"
+)
+
 
 def _escape(value: str) -> str:
     return value.replace("\\", "\\\\").replace("\n", "\\n").replace(";", "\\;").replace(",", "\\,")
@@ -52,8 +58,36 @@ def _parse_time(value: object) -> time | None:
         return None
 
 
+def _parse_date(value: object) -> date | None:
+    text = str(value).strip()
+    try:
+        return date.fromisoformat(text)
+    except ValueError:
+        pass
+
+    iso_match = re.search(r"\b\d{4}-\d{2}-\d{2}\b", text)
+    if iso_match:
+        try:
+            return date.fromisoformat(iso_match.group())
+        except ValueError:
+            return None
+
+    month_match = _MONTH_DATE.search(text)
+    if not month_match:
+        return None
+    candidate = month_match.group().replace(",", "")
+    for date_format in ("%B %d %Y", "%b %d %Y"):
+        try:
+            return datetime.strptime(candidate, date_format).date()
+        except ValueError:
+            continue
+    return None
+
+
 def _event_lines(event: dict[str, object], stamp: datetime) -> list[str]:
-    event_date = date.fromisoformat(str(event["date"]))
+    event_date = _parse_date(event.get("date"))
+    if event_date is None:
+        return []
     event_time = event.get("time")
     uid_source = f"{event.get('source')}|{event.get('title')}|{event_date}|{event_time}"
     uid = hashlib.sha256(uid_source.encode()).hexdigest()[:24] + "@rfp-triage-agent"
