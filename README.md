@@ -80,11 +80,14 @@ limit, 65,536-token output limit, structured outputs, and free-tier use. Those p
 long RFPs and the no-payment-card constraint. Temperature is zero and thinking uses the model's
 supported `MINIMAL` level for predictability and latency.
 
-The second provider uses the official Groq SDK and `openai/gpt-oss-120b`, configurable with
-`GROQ_MODEL`. Groq's current model page lists a 131,072-token context window, and its rate-limit
-page lists the model under Free Plan limits. Calls use strict JSON-schema structured output.
-Both providers retry 429 and 5xx responses with exponential backoff, then fail over in the
-configured order.
+The second provider uses the official Groq SDK and `qwen/qwen3.8-27b`, configurable with
+`GROQ_MODEL`. Groq's current model page lists a 131,072-token context window and 16,384 output
+tokens, while its rate-limit page lists the model under Free Plan limits. Calls use strict
+JSON-schema structured output followed by Pydantic validation.
+Groq calls are spaced 60 seconds after each completed response so document-sized requests receive
+a fresh free-plan TPM window. A full free-tier run can therefore take several minutes. Both
+providers retry 429 and 5xx responses with exponential backoff, then fail over in the configured
+order.
 
 All provider access lives in `rfp_agent/llm.py` behind
 `generate_json(prompt, schema) -> validated object`.
@@ -134,7 +137,7 @@ ruff format --check .
 pytest
 ```
 
-Current local result: **40 passed** on Python 3.13.5. The tests cover evidence normalization and
+Current local result: **41 passed** on Python 3.13.5. The tests cover evidence normalization and
 matching, dates, scoring guardrails, radar sorting, RFC 5545 parsing, ingest validation, and both
 LangGraph routes with a FakeLLM, plus provider retry and failover behavior.
 

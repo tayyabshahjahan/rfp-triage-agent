@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import time
 from collections.abc import Callable
 from datetime import date
@@ -80,6 +81,51 @@ def _verified_copy(extraction: Extraction) -> Extraction:
             item.consequence_evidence = None
     clean.ambiguities = [item for item in clean.ambiguities if item.evidence.verified]
     return clean
+
+
+def _assessment_json(extraction: Extraction, *, fast: bool) -> str:
+    payload: dict[str, object] = {
+        "facts": {name: fact.value for name, fact in extraction.facts},
+        "summary": extraction.summary,
+        "dates": [
+            {
+                "what": item.what,
+                "kind": item.kind,
+                "date": item.date,
+                "time": item.time,
+                "timezone": item.timezone,
+            }
+            for item in extraction.dates
+        ],
+        "gate_candidates": [
+            {
+                "gate_id": item.gate_id,
+                "type": item.type,
+                "title": item.title,
+                "requirement": item.requirement,
+                "action_date": item.action_date,
+                "consequence": item.consequence,
+            }
+            for item in extraction.gate_candidates
+        ],
+        "ambiguities": [
+            {"topic": item.topic, "detail": item.detail}
+            for item in extraction.ambiguities
+        ],
+        "buyer_work_category": extraction.buyer_work_category,
+        "relevance": extraction.relevance.model_dump(mode="json"),
+    }
+    if not fast:
+        payload["requirements"] = [
+            {
+                "requirement_id": item.requirement_id,
+                "category": item.category,
+                "mandatory": item.mandatory,
+                "text": item.text[:160],
+            }
+            for item in extraction.requirements
+        ]
+    return json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
 
 
 class RfpTriagePipeline:
@@ -190,8 +236,14 @@ class RfpTriagePipeline:
             "recall",
             recall_prompt(
                 state["numbered_text"],
-                [item.model_dump(mode="json") for item in extraction.requirements],
-                [item.model_dump(mode="json") for item in extraction.dates],
+                [
+                    f"{item.requirement_id or '-'}|{item.mandatory}|{item.text[:48]}"
+                    for item in extraction.requirements
+                ],
+                [
+                    f"{item.kind}|{item.date}|{item.what[:80]}"
+                    for item in extraction.dates
+                ],
             ),
             RecallResult,
         )
@@ -235,7 +287,7 @@ class RfpTriagePipeline:
     def _assess(self, state: GraphState, *, fast: bool) -> dict[str, object]:
         started = time.perf_counter()
         clean = _verified_copy(state["extraction"])
-        prompt = assess_prompt(clean.model_dump_json(), IDIAZ_PROFILE, fast=fast)
+        prompt = assess_prompt(_assessment_json(clean, fast=fast), IDIAZ_PROFILE, fast=fast)
         node = "assess_fast" if fast else "assess_full"
         assessment, llm_calls, llm_metadata = self._invoke_llm(
             state, node, prompt, Assessment

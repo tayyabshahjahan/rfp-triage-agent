@@ -37,6 +37,7 @@ def provider_env(monkeypatch):
     monkeypatch.setenv("GEMINI_API_KEY", "test-gemini-key")
     monkeypatch.setenv("GROQ_API_KEY", "test-groq-key")
     monkeypatch.setenv("GEMINI_FALLBACK_MODEL", "")
+    monkeypatch.setattr(llm, "_GROQ_LAST_COMPLETED", 0.0)
     monkeypatch.setattr(llm.time, "sleep", lambda _: None)
     monkeypatch.setattr(llm.random, "random", lambda: 0.0)
 
@@ -54,9 +55,10 @@ def test_groq_schema_keeps_numeric_constraints_and_is_strict():
     assert set(groq_schema["required"]) == set(groq_schema["properties"])
     assert "minItems" in str(groq_schema)
     assert '"default"' not in str(groq_schema)
+    assert '"description"' not in str(groq_schema)
 
 
-def test_groq_uses_strict_json_schema(monkeypatch):
+def test_groq_uses_json_schema_with_code_validation(monkeypatch):
     captured = {}
 
     class FakeCompletions:
@@ -77,13 +79,25 @@ def test_groq_uses_strict_json_schema(monkeypatch):
 
     monkeypatch.setattr(groq, "Groq", FakeGroq)
 
-    result = llm._call_groq("prompt", FakeResponse, "openai/gpt-oss-120b", "key")
+    result = llm._call_groq("prompt", FakeResponse, "qwen/qwen3.8-27b", "key")
 
     assert result.answer == "ok"
     assert captured["client"]["max_retries"] == 0
     assert captured["response_format"]["type"] == "json_schema"
     assert captured["response_format"]["json_schema"]["strict"] is True
     assert captured["reasoning_effort"] == "low"
+
+
+def test_groq_fills_missing_gate_title():
+    payload = {
+        "gate_candidates": [
+            {"title": "", "requirement": "Attend the mandatory site visit."}
+        ]
+    }
+
+    normalized = llm._normalize_provider_payload(payload)
+
+    assert normalized["gate_candidates"][0]["title"] == "Attend the mandatory site visit."
 
 
 def test_transient_error_retries_then_succeeds(monkeypatch, provider_env):

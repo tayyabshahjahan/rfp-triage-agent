@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import json
 import logging
 import os
 import random
+import threading
 import time
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
@@ -16,6 +18,8 @@ from pydantic import BaseModel, ValidationError
 from .config import (
     GEMINI_FALLBACK_MODEL,
     GEMINI_MODEL,
+    GROQ_MAX_OUTPUT_TOKENS,
+    GROQ_MIN_CALL_INTERVAL_SECONDS,
     GROQ_MODEL,
     LLM_MAX_OUTPUT_TOKENS,
     LLM_MAX_RETRIES,
@@ -33,6 +37,8 @@ _LAST_CALL_METADATA: ContextVar[dict[str, object] | None] = ContextVar(
 _PROGRESS_CALLBACK: ContextVar[ProviderProgress | None] = ContextVar(
     "llm_progress_callback", default=None
 )
+_GROQ_RATE_LOCK = threading.Lock()
+_GROQ_LAST_COMPLETED = 0.0
 
 
 class LlmError(RuntimeError):
@@ -146,7 +152,7 @@ def _strict_provider_schema(schema: type[T]) -> dict[str, object]:
             result = {
                 key: clean(child)
                 for key, child in value.items()
-                if key != "default"
+                if key not in {"default", "description", "title"}
             }
             if result.get("type") == "object":
                 result["additionalProperties"] = False
@@ -157,6 +163,17 @@ def _strict_provider_schema(schema: type[T]) -> dict[str, object]:
         return value
 
     return clean(schema.model_json_schema())
+
+
+def _normalize_provider_payload(payload: object) -> object:
+    if not isinstance(payload, dict):
+        return payload
+    gates = payload.get("gate_candidates")
+    if isinstance(gates, list):
+        for gate in gates:
+            if isinstance(gate, dict) and not gate.get("title"):
+                gate["title"] = gate.get("requirement") or gate.get("action") or "Requirement"
+    return payload
 
 
 def _provider_models(provider: str) -> list[str]:
@@ -200,38 +217,49 @@ def _call_gemini(prompt: str, schema: type[T], model: str, api_key: str) -> T:
 
 
 def _call_groq(prompt: str, schema: type[T], model: str, api_key: str) -> T:
+    global _GROQ_LAST_COMPLETED
+
     from groq import Groq
 
-    client = Groq(
-        api_key=api_key,
-        timeout=LLM_TIMEOUT_SECONDS,
-        max_retries=0,
-    )
-    started = time.perf_counter()
-    response = client.chat.completions.create(
-        model=model,
-        messages=[{"role": "user", "content": prompt}],
-        response_format={
-            "type": "json_schema",
-            "json_schema": {
-                "name": schema.__name__,
-                "strict": True,
-                "schema": _strict_provider_schema(schema),
-            },
-        },
-        temperature=0,
-        max_completion_tokens=LLM_MAX_OUTPUT_TOKENS,
-        reasoning_effort="low",
-    )
-    LOGGER.info(
-        "Groq call model=%s seconds=%.2f",
-        model,
-        time.perf_counter() - started,
-    )
-    message = response.choices[0].message
-    if not message.content:
-        raise ValueError("Groq returned an empty structured response.")
-    return schema.model_validate_json(message.content)
+    with _GROQ_RATE_LOCK:
+        elapsed = time.monotonic() - _GROQ_LAST_COMPLETED
+        wait_seconds = max(0.0, GROQ_MIN_CALL_INTERVAL_SECONDS - elapsed)
+        if wait_seconds:
+            time.sleep(wait_seconds)
+        client = Groq(
+            api_key=api_key,
+            timeout=LLM_TIMEOUT_SECONDS,
+            max_retries=0,
+        )
+        started = time.perf_counter()
+        try:
+            response = client.chat.completions.create(
+                model=model,
+                messages=[{"role": "user", "content": prompt}],
+                response_format={
+                    "type": "json_schema",
+                    "json_schema": {
+                        "name": schema.__name__,
+                        "strict": True,
+                        "schema": _strict_provider_schema(schema),
+                    },
+                },
+                temperature=0,
+                max_completion_tokens=GROQ_MAX_OUTPUT_TOKENS,
+                reasoning_effort="low",
+            )
+        finally:
+            _GROQ_LAST_COMPLETED = time.monotonic()
+        LOGGER.info(
+            "Groq call model=%s seconds=%.2f",
+            model,
+            time.perf_counter() - started,
+        )
+        message = response.choices[0].message
+        if not message.content:
+            raise ValueError("Groq returned an empty structured response.")
+        payload = json.loads(message.content)
+        return schema.model_validate(_normalize_provider_payload(payload))
 
 
 def _call_provider(
@@ -296,8 +324,11 @@ def generate_json(prompt: str, schema: type[T]) -> T:
                     if not validation_repair_used and attempt < LLM_MAX_RETRIES:
                         validation_repair_used = True
                         retries_used += 1
+                        validation_note = str(exc)
+                        if len(validation_note) > 400:
+                            validation_note = validation_note[:400] + "..."
                         current_prompt = (
-                            f"{prompt}\n\nYour previous JSON failed validation: {exc}. "
+                            f"{prompt}\n\nYour previous JSON failed validation: {validation_note}. "
                             "Return corrected JSON only, matching the response schema exactly."
                         )
                         continue
