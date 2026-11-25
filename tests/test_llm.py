@@ -5,8 +5,13 @@ import pytest
 from pydantic import BaseModel
 
 from rfp_agent import llm
-from rfp_agent.llm import LlmError, _provider_schema, _strict_provider_schema
-from rfp_agent.schemas import Extraction
+from rfp_agent.llm import (
+    LlmError,
+    _compact_groq_prompt,
+    _provider_schema,
+    _strict_provider_schema,
+)
+from rfp_agent.schemas import Extraction, RecallResult
 
 
 class FakeResponse(BaseModel):
@@ -56,6 +61,7 @@ def test_groq_schema_keeps_numeric_constraints_and_is_strict():
     assert "minItems" in str(groq_schema)
     assert '"default"' not in str(groq_schema)
     assert '"description"' not in str(groq_schema)
+    assert '"verified"' not in str(groq_schema)
 
 
 def test_groq_uses_json_schema_with_code_validation(monkeypatch):
@@ -79,7 +85,7 @@ def test_groq_uses_json_schema_with_code_validation(monkeypatch):
 
     monkeypatch.setattr(groq, "Groq", FakeGroq)
 
-    result = llm._call_groq("prompt", FakeResponse, "qwen/qwen3.8-27b", "key")
+    result = llm._call_groq("prompt", FakeResponse, "openai/gpt-oss-120b", "key")
 
     assert result.answer == "ok"
     assert captured["client"]["max_retries"] == 0
@@ -98,6 +104,54 @@ def test_groq_fills_missing_gate_title():
     normalized = llm._normalize_provider_payload(payload)
 
     assert normalized["gate_candidates"][0]["title"] == "Attend the mandatory site visit."
+
+
+def test_groq_maps_unknown_requirement_category_to_other():
+    payload = {
+        "requirements": [
+            {
+                "category": "DELIVERABLE",
+                "text": "Provide a project plan.",
+                "mandatory": "YES",
+            }
+        ],
+        "dates": [],
+    }
+
+    normalized = llm._normalize_provider_payload(payload, RecallResult)
+
+    assert normalized["requirements"][0]["category"] == "OTHER"
+
+
+def test_groq_recall_prompt_uses_page_numbered_cues_without_full_document():
+    prompt = (
+        'LIKELY_UNCOVERED_OBLIGATION_CUES\n["p2: uptime", "p4: insurance"]\n'
+        "BEGIN_UNTRUSTED_DATA\n"
+        "[[PAGE 1]]\nintro\n\n[[PAGE 2]]\nuptime\n\n"
+        "[[PAGE 3]]\nbackground\n\n[[PAGE 4]]\ninsurance\n"
+        "END_UNTRUSTED_DATA"
+    )
+
+    compacted = _compact_groq_prompt(prompt, RecallResult)
+
+    assert '"p2: uptime"' in compacted
+    assert '"p4: insurance"' in compacted
+    assert "[[PAGE" not in compacted
+
+
+def test_groq_extraction_drops_toc_page_and_repeated_footers_only_for_fallback():
+    prompt = (
+        "BEGIN_UNTRUSTED_DATA\n"
+        "[[PAGE 1]]\nImportant requirement.\nRFP 123 Page 1 of 2\n\n"
+        "[[PAGE 2]]\nTABLE OF CONTENTS\n1. Scope\nRFP 123 Page 2 of 2\n"
+        "END_UNTRUSTED_DATA"
+    )
+
+    compacted = _compact_groq_prompt(prompt, Extraction)
+
+    assert "Important requirement." in compacted
+    assert "TABLE OF CONTENTS" not in compacted
+    assert "Page 1 of 2" not in compacted
 
 
 def test_transient_error_retries_then_succeeds(monkeypatch, provider_env):

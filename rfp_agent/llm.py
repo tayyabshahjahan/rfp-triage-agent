@@ -6,11 +6,13 @@ import json
 import logging
 import os
 import random
+import re
 import threading
 import time
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from contextvars import ContextVar
+from datetime import date
 from typing import Any, TypeVar
 
 from pydantic import BaseModel, ValidationError
@@ -30,6 +32,17 @@ from .config import (
 T = TypeVar("T", bound=BaseModel)
 ProviderProgress = Callable[[str], None]
 LOGGER = logging.getLogger(__name__)
+_CODE_COMPUTED_FIELDS = {
+    "verified",
+    "match",
+    "page_corrected",
+    "date_check",
+    "days_remaining",
+    "timing",
+}
+_GROQ_NON_STRICT_SCHEMAS = {"Extraction", "RecallResult"}
+_UNTRUSTED_BEGIN = "BEGIN_UNTRUSTED_DATA\n"
+_UNTRUSTED_END = "\nEND_UNTRUSTED_DATA"
 
 _LAST_CALL_METADATA: ContextVar[dict[str, object] | None] = ContextVar(
     "last_llm_call_metadata", default=None
@@ -132,11 +145,24 @@ def _provider_schema(schema: type[T]) -> dict[str, object]:
 
     def clean(value: Any) -> Any:
         if isinstance(value, dict):
-            return {
-                key: clean(child)
-                for key, child in value.items()
-                if key != "additionalProperties"
-            }
+            result: dict[str, Any] = {}
+            for key, child in value.items():
+                if key == "additionalProperties":
+                    continue
+                if key == "properties" and isinstance(child, dict):
+                    result[key] = {
+                        name: clean(item)
+                        for name, item in child.items()
+                        if name not in _CODE_COMPUTED_FIELDS
+                    }
+                    continue
+                if key == "required" and isinstance(child, list):
+                    result[key] = [
+                        item for item in child if item not in _CODE_COMPUTED_FIELDS
+                    ]
+                    continue
+                result[key] = clean(child)
+            return result
         if isinstance(value, list):
             return [clean(child) for child in value]
         return value
@@ -155,8 +181,16 @@ def _strict_provider_schema(schema: type[T]) -> dict[str, object]:
                 if key not in {"default", "description", "title"}
             }
             if result.get("type") == "object":
+                properties = result.get("properties", {})
+                if isinstance(properties, dict):
+                    properties = {
+                        key: child
+                        for key, child in properties.items()
+                        if key not in _CODE_COMPUTED_FIELDS
+                    }
+                    result["properties"] = properties
                 result["additionalProperties"] = False
-                result["required"] = list(result.get("properties", {}))
+                result["required"] = list(properties)
             return result
         if isinstance(value, list):
             return [clean(child) for child in value]
@@ -165,15 +199,159 @@ def _strict_provider_schema(schema: type[T]) -> dict[str, object]:
     return clean(schema.model_json_schema())
 
 
-def _normalize_provider_payload(payload: object) -> object:
+def _normalize_provider_payload(payload: object, schema: type[BaseModel] | None = None) -> object:
     if not isinstance(payload, dict):
         return payload
+
+    def scrub(value: object) -> object:
+        if isinstance(value, dict):
+            return {
+                key: scrub(child)
+                for key, child in value.items()
+                if key not in _CODE_COMPUTED_FIELDS
+            }
+        if isinstance(value, list):
+            return [scrub(child) for child in value]
+        return value
+
+    payload = scrub(payload)
+    if not isinstance(payload, dict):
+        return payload
+
+    schema_name = schema.__name__ if schema is not None else ""
+    if schema_name == "Extraction":
+        fact_names = {
+            "agency",
+            "rfp_number_and_title",
+            "scope_summary",
+            "contract_type",
+            "contract_value_or_budget",
+            "term",
+            "place_of_performance",
+            "submission_method",
+            "evaluation_method",
+        }
+        facts = payload.get("facts")
+        if not isinstance(facts, dict):
+            facts = {}
+            payload["facts"] = facts
+        for name in fact_names:
+            fact = facts.get(name)
+            if not isinstance(fact, dict):
+                facts[name] = {"value": "Not stated", "evidence": None}
+                continue
+            if fact.get("value") != "Not stated" and not fact.get("evidence"):
+                fact["value"] = "Not stated"
+                fact["evidence"] = None
+
+    if schema_name in {"Extraction", "RecallResult"}:
+        valid_requirement_categories = {
+            "CERTIFICATION",
+            "SET_ASIDE",
+            "CLEARANCE",
+            "PAST_PERFORMANCE",
+            "STAFFING",
+            "TECHNICAL_SKILL",
+            "SECURITY_COMPLIANCE",
+            "INSURANCE_BONDING",
+            "REGISTRATION_LICENSE",
+            "SUBMISSION_FORMAT",
+            "COMMERCIAL",
+            "OTHER",
+        }
+        requirements = payload.get("requirements")
+        if isinstance(requirements, list):
+            for item in requirements:
+                if (
+                    isinstance(item, dict)
+                    and item.get("category") not in valid_requirement_categories
+                ):
+                    item["category"] = "OTHER"
+
+        valid_date_kinds = {
+            "PROPOSAL_DUE",
+            "QUESTIONS_DUE",
+            "PRE_PROPOSAL_MEETING",
+            "SITE_VISIT",
+            "WORK_START",
+            "AWARD",
+            "ISSUE_DATE",
+            "ADDENDUM",
+            "OTHER",
+        }
+        dates = payload.get("dates")
+        if isinstance(dates, list):
+            normalized_dates: list[object] = []
+            for item in dates:
+                if not isinstance(item, dict):
+                    continue
+                try:
+                    date.fromisoformat(str(item.get("date")))
+                except ValueError:
+                    continue
+                if item.get("kind") not in valid_date_kinds:
+                    item["kind"] = "OTHER"
+                normalized_dates.append(item)
+            payload["dates"] = normalized_dates
+
     gates = payload.get("gate_candidates")
     if isinstance(gates, list):
         for gate in gates:
             if isinstance(gate, dict) and not gate.get("title"):
                 gate["title"] = gate.get("requirement") or gate.get("action") or "Requirement"
     return payload
+
+
+def _compact_groq_prompt(prompt: str, schema: type[BaseModel]) -> str:
+    if schema.__name__ not in {"Extraction", "RecallResult", "RepairResult"}:
+        return prompt
+    if _UNTRUSTED_BEGIN not in prompt or _UNTRUSTED_END not in prompt:
+        return prompt
+
+    prefix, remainder = prompt.split(_UNTRUSTED_BEGIN, 1)
+    document, suffix = remainder.split(_UNTRUSTED_END, 1)
+    if schema.__name__ == "Extraction":
+        matches = list(re.finditer(r"(?m)^\[\[PAGE (\d+)\]\]\n", document))
+        blocks: list[str] = []
+        for index, match in enumerate(matches):
+            end = matches[index + 1].start() if index + 1 < len(matches) else len(document)
+            block = document[match.start() : end].strip()
+            if "\nTABLE OF CONTENTS\n" in f"\n{block}\n":
+                continue
+            lines = [
+                line
+                for line in block.splitlines()
+                if not (
+                    re.search(r"(?i)\bpage\s+\d+\s+of\s+\d+\s*$", line)
+                    and ("rfp" in line.casefold() or line.casefold().startswith("page"))
+                )
+            ]
+            blocks.append("\n".join(lines).strip())
+        selected = "\n\n".join(blocks)
+        return f"{prefix}{_UNTRUSTED_BEGIN}{selected}{_UNTRUSTED_END}{suffix}"
+    if schema.__name__ == "RecallResult":
+        return f"{prefix}{_UNTRUSTED_BEGIN}{_UNTRUSTED_END}{suffix}"
+    else:
+        wanted = {int(value) for value in re.findall(r'"page"\s*:\s*(\d+)', prefix)}
+    if not wanted:
+        return prompt
+
+    matches = list(re.finditer(r"(?m)^\[\[PAGE (\d+)\]\]\n", document))
+    blocks: list[str] = []
+    budget = max(0, 22_000 - len(prefix) - len(suffix))
+    used = 0
+    for index, match in enumerate(matches):
+        page_number = int(match.group(1))
+        if page_number not in wanted:
+            continue
+        end = matches[index + 1].start() if index + 1 < len(matches) else len(document)
+        block = document[match.start() : end].strip()
+        if used + len(block) > budget:
+            continue
+        blocks.append(block)
+        used += len(block)
+    selected = "\n\n".join(blocks)
+    return f"{prefix}{_UNTRUSTED_BEGIN}{selected}{_UNTRUSTED_END}{suffix}"
 
 
 def _provider_models(provider: str) -> list[str]:
@@ -221,9 +399,14 @@ def _call_groq(prompt: str, schema: type[T], model: str, api_key: str) -> T:
 
     from groq import Groq
 
+    prompt = _compact_groq_prompt(prompt, schema)
     with _GROQ_RATE_LOCK:
         elapsed = time.monotonic() - _GROQ_LAST_COMPLETED
-        wait_seconds = max(0.0, GROQ_MIN_CALL_INTERVAL_SECONDS - elapsed)
+        interval = max(
+            GROQ_MIN_CALL_INTERVAL_SECONDS,
+            60.0 if len(prompt) >= 12_000 else GROQ_MIN_CALL_INTERVAL_SECONDS,
+        )
+        wait_seconds = max(0.0, interval - elapsed)
         if wait_seconds:
             time.sleep(wait_seconds)
         client = Groq(
@@ -233,6 +416,7 @@ def _call_groq(prompt: str, schema: type[T], model: str, api_key: str) -> T:
         )
         started = time.perf_counter()
         try:
+            strict = schema.__name__ not in _GROQ_NON_STRICT_SCHEMAS
             response = client.chat.completions.create(
                 model=model,
                 messages=[{"role": "user", "content": prompt}],
@@ -240,7 +424,7 @@ def _call_groq(prompt: str, schema: type[T], model: str, api_key: str) -> T:
                     "type": "json_schema",
                     "json_schema": {
                         "name": schema.__name__,
-                        "strict": True,
+                        "strict": strict,
                         "schema": _strict_provider_schema(schema),
                     },
                 },
@@ -259,7 +443,15 @@ def _call_groq(prompt: str, schema: type[T], model: str, api_key: str) -> T:
         if not message.content:
             raise ValueError("Groq returned an empty structured response.")
         payload = json.loads(message.content)
-        return schema.model_validate(_normalize_provider_payload(payload))
+        try:
+            return schema.model_validate(_normalize_provider_payload(payload, schema))
+        except ValidationError as exc:
+            LOGGER.warning(
+                "Groq validation failed schema=%s errors=%s",
+                schema.__name__,
+                exc.errors(include_input=False)[:12],
+            )
+            raise
 
 
 def _call_provider(

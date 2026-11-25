@@ -3,7 +3,7 @@
 An evidence-first Streamlit app that reads one text-searchable government RFP and returns a
 human-readable bid triage report plus downloadable JSON and calendar files.
 
-**Live app:** `https://<your-app>.streamlit.app` (replace after deployment)
+**Live app:** https://rfp-triage-agent.streamlit.app
 
 ## What It Does
 
@@ -49,13 +49,15 @@ docker run --rm -p 8501:8501 -e GEMINI_API_KEY=your_key rfp-triage-agent
 flowchart LR
     A[ingest: code] --> B[analyze: LLM]
     B --> C[verify: code]
-    C -->|bad quote, attempts left| D[repair: LLM]
+    C --> D[recall: LLM]
     D --> C
-    C -->|relevance STRONG/PARTIAL| E[assess_full: LLM]
-    C -->|relevance NONE| F[assess_fast: LLM]
-    E --> G[guardrails: code]
-    F --> G
-    G --> H[build_report: code]
+    C -->|bad quote, attempts left| E[repair: LLM]
+    E --> C
+    C -->|relevance STRONG/PARTIAL| F[assess_full: LLM]
+    C -->|relevance NONE| G[assess_fast: LLM]
+    F --> H[guardrails: code]
+    G --> H
+    H --> I[build_report: code]
 ```
 
 | Node | Why code or LLM |
@@ -63,6 +65,7 @@ flowchart LR
 | `ingest` | PDF parsing, page limits, and scanned detection are deterministic. |
 | `analyze` | A model is useful for reading varied prose, tables, appendices, and forms. |
 | `verify` | Source quotes must be checked mechanically, not trusted because a model supplied them. |
+| `recall` | A second pass receives the first inventory and uncovered obligation cues, then returns only missing requirements and dates. |
 | `repair` | The model gets one narrow chance to find corrected evidence for only failed items. |
 | `assess_full` | Fit and delivery judgment need language understanding, but only over verified extraction. |
 | `assess_fast` | Clearly unrelated work gets a cheaper, decisive no-bid while retaining a full report. |
@@ -80,12 +83,12 @@ limit, 65,536-token output limit, structured outputs, and free-tier use. Those p
 long RFPs and the no-payment-card constraint. Temperature is zero and thinking uses the model's
 supported `MINIMAL` level for predictability and latency.
 
-The second provider uses the official Groq SDK and `qwen/qwen3.8-27b`, configurable with
-`GROQ_MODEL`. Groq's current model page lists a 131,072-token context window and 16,384 output
-tokens, while its rate-limit page lists the model under Free Plan limits. Calls use strict
-JSON-schema structured output followed by Pydantic validation.
-Groq calls are spaced 60 seconds after each completed response so document-sized requests receive
-a fresh free-plan TPM window. A full free-tier run can therefore take several minutes. Both
+The second provider uses the official Groq SDK and `openai/gpt-oss-120b`, configurable with
+`GROQ_MODEL`. It supports JSON-schema output and an 8,000-token free-tier response budget,
+which is large enough for the extraction schema; Qwen's 1,000-token free-tier output allowance was
+not. Pydantic validates every response after provider-side structured output.
+Groq calls are spaced at least 30 seconds apart to respect its free-plan request limit. A run that
+falls back repeatedly can therefore take longer than the normal Gemini path. Both
 providers retry 429 and 5xx responses with exponential backoff, then fail over in the configured
 order.
 
@@ -117,14 +120,14 @@ Code rounds half up. A `scope_fit` of 2 or lower caps the result at 2 and forces
 failed gate also forces `NO_BID`. If code changes the model decision, the reason is shown in the
 report. Suspicious score/decision combinations produce warnings but are not silently changed.
 
-## Disqualification Radar
+## Bonus Feature: Disqualification Radar
 
 The radar puts mechanical rejection risks before proposal scoring: mandatory meetings,
 eligibility, registrations, bonds, submission mechanics, forms, addenda, onsite rules, and price
 ceilings. Each row includes status, required action, do-by date, consequence, and verified quote.
 The same actions are merged with all deadlines into a chronological calendar and `.ics` file.
-
-**Screenshot:** `TODO(candidate): add a screenshot after the live deployment is working.`
+I chose it because a good scope match is irrelevant when one missed filing, certification, bond,
+or contact restriction makes the proposal nonresponsive. The feature is visible as its own UI tab.
 
 ## Tests And Sample Results
 
@@ -137,7 +140,7 @@ ruff format --check .
 pytest
 ```
 
-Current local result: **41 passed** on Python 3.13.5. The tests cover evidence normalization and
+Current local result: **50 passed** on Python 3.13.5. The tests cover evidence normalization and
 matching, dates, scoring guardrails, radar sorting, RFC 5545 parsing, ingest validation, and both
 LangGraph routes with a FakeLLM, plus provider retry and failover behavior.
 
@@ -164,20 +167,22 @@ Measured locally on 2026-11-25 with `gemini-3.5-flash-lite`; free-tier latency c
 ## Deployment
 
 The target is Streamlit Community Cloud because it is free, deploys directly from GitHub, and
-supports encrypted app secrets. Select `app.py` as the entry point, add the provider API keys in
-the Cloud secrets editor, and keep `.streamlit/secrets.toml` out of git. No secret is baked into
-the Docker image, cache, report, prompt logs, or CI.
+supports encrypted app secrets. Select `app.py` as the entry point, make the app public, add the
+provider API keys in the Cloud secrets editor, and keep `.streamlit/secrets.toml` out of git. No
+secret is baked into the Docker image, cache, report, prompt logs, or CI.
 
 ## What Went Wrong And How I Fixed It
 
-`TODO(candidate): Replace these prompts with short, truthful observations from your own testing.`
-
-- `TODO(candidate): What extraction error did one sample reveal? How did you reproduce and fix it?`
-- `TODO(candidate): What did quote verification reject, and was that rejection correct?`
-- `TODO(candidate): What changed after the first live deployment?`
-
-Do not fabricate a story. This section is strongest when it describes one or two concrete failures
-you personally observed.
+- A Cedar Hollow test run captured its feature matrix but skipped obligations buried in security,
+  acceptance, support, submission and contract sections. I reproduced it from the downloaded JSON,
+  expanded the section-by-section extraction rules, and added deterministic uncovered-line cues to
+  the recall pass.
+- The calendar initially crashed when a model returned non-ISO dates or times. Date/time parsing now
+  validates defensively, normalizes US timezone names to IANA zones, and inherits timezone headings
+  such as `Date and time (Pacific)`.
+- The first Streamlit deployment attempted to build an older PyArrow on Python 3.14 and failed for
+  lack of CMake. Updating Streamlit and pinning a wheel-backed PyArrow fixed the cloud build; later
+  deploys also added automatic Gemini-to-Groq failover for free-tier outages.
 
 ## Known Limitations
 

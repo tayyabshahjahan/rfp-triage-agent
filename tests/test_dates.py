@@ -55,3 +55,13 @@ def test_maps_all_us_timezone_names_to_iana():
     assert normalize_timezone("Eastern") == "America/New_York"
     assert normalize_timezone("Central") == "America/Chicago"
     assert normalize_timezone("Mountain") == "America/Denver"
+
+
+def test_inherits_timezone_from_table_heading():
+    item = make_date("December 9, 2026, 1:00 PM", "2026-12-09")
+    item.time = "1:00 PM"
+
+    normalize_date_time(item, "PROCUREMENT SCHEDULE\nDate and time (Pacific)")
+
+    assert item.time == "13:00"
+    assert item.timezone == "America/Los_Angeles"

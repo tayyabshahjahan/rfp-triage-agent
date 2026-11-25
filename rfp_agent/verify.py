@@ -23,6 +23,14 @@ from .schemas import (
 
 _DASHES = dict.fromkeys(map(ord, "\u2010\u2011\u2012\u2013\u2014\u2015\u2212"), "-")
 _QUOTES = str.maketrans({"\u2018": "'", "\u2019": "'", "\u201c": '"', "\u201d": '"'})
+_CUE_PATTERN = re.compile(
+    r"(?i)\b(?:shall|must|required|mandatory|may not|will (?:provide|deliver|perform|"
+    r"comply|maintain|submit|supply|install|retain|notify)|at least|within \d|no later|"
+    r"due|deadline|valid for|availability|uptime|acceptance|service level|support|"
+    r"response|resolution|insurance|bond|retainage|liability|indemn|terminat|on-?site|"
+    r"subcontract|prevailing wage|encrypt|hosting|data (?:stored|processed|used)|"
+    r"page limit|attachment|addendum|exception|waiv|training|migration|audit|public record)\b"
+)
 
 
 def normalize_text(text: str) -> str:
@@ -45,6 +53,20 @@ def ensure_gate_ids(extraction: Extraction) -> None:
     for index, gate in enumerate(extraction.gate_candidates, start=1):
         if not gate.gate_id:
             gate.gate_id = f"gate-{index:03d}"
+
+
+def normalize_gate_types(extraction: Extraction) -> None:
+    for gate in extraction.gate_candidates:
+        text = normalize_text(
+            " ".join([gate.title, gate.requirement, gate.action, gate.evidence.quote])
+        )
+        contact_rule = (
+            "procurement contact" in text
+            or "contact with any other" in text
+            or ("communicat" in text and "writing" in text)
+        )
+        if contact_rule:
+            gate.type = "COMMUNICATION_RESTRICTION"
 
 
 def iter_evidence(extraction: Extraction) -> Iterable[EvidenceRef]:
@@ -171,12 +193,85 @@ def _requirement_key(requirement: Requirement) -> tuple[str, str]:
     return "text", normalize_text(requirement.text)
 
 
-def _date_key(item: DateItem) -> tuple[str, ...]:
-    kind = item.kind
-    key = (kind, item.date, normalize_time(item.time) or "")
-    if kind == "OTHER":
-        return (*key, normalize_text(item.what))
-    return key
+def _date_key(item: DateItem) -> tuple[str, str, str]:
+    return (item.date, normalize_time(item.time) or "", normalize_text(item.what))
+
+
+def _merge_date_details(existing: DateItem, incoming: DateItem) -> None:
+    if existing.kind == "OTHER" and incoming.kind != "OTHER":
+        existing.kind = incoming.kind
+    if existing.time is None and incoming.time is not None:
+        existing.time = incoming.time
+    if existing.timezone is None and incoming.timezone is not None:
+        existing.timezone = incoming.timezone
+    if existing.mandatory_attendance is None:
+        existing.mandatory_attendance = incoming.mandatory_attendance
+    known = {(item.date, normalize_text(item.date_text)) for item in existing.superseded}
+    for item in incoming.superseded:
+        key = (item.date, normalize_text(item.date_text))
+        if key not in known:
+            existing.superseded.append(item)
+            known.add(key)
+
+
+def dedupe_dates(items: list[DateItem]) -> int:
+    """Remove semantic date duplicates while preserving the first visible row."""
+
+    unique: list[DateItem] = []
+    by_key: dict[tuple[str, str, str], DateItem] = {}
+    for item in items:
+        key = _date_key(item)
+        existing = by_key.get(key)
+        if existing is None:
+            by_key[key] = item
+            unique.append(item)
+            continue
+        _merge_date_details(existing, item)
+    removed = len(items) - len(unique)
+    items[:] = unique
+    return removed
+
+
+def requirement_coverage_cues(
+    pages: list[str], extraction: Extraction, *, limit: int = 80
+) -> list[str]:
+    """Surface likely obligation lines not represented in the first extraction pass."""
+
+    covered_parts: list[str] = []
+    for item in extraction.requirements:
+        covered_parts.extend([item.text, item.evidence.quote])
+    for item in extraction.dates:
+        covered_parts.extend([item.what, item.date_text, item.evidence.quote])
+    covered = normalize_text(" ".join(covered_parts))
+    cues: list[str] = []
+    seen: set[str] = set()
+    for page_number, page in enumerate(pages, start=1):
+        page_cues = 0
+        for raw_line in page.splitlines():
+            line = re.sub(r"\s+", " ", raw_line).strip(" \t-\u2022")
+            normalized = normalize_text(line)
+            if not 20 <= len(line) <= 320 or len(normalized.split()) < 4:
+                continue
+            is_bullet = raw_line.lstrip().startswith(("-", "\u2022"))
+            if not is_bullet and not _CUE_PATTERN.search(line):
+                continue
+            if normalized in covered or normalized in seen:
+                continue
+            tokens = {
+                token
+                for token in re.findall(r"[a-z0-9.$%/-]+", normalized)
+                if len(token) > 3
+            }
+            if tokens and sum(token in covered for token in tokens) / len(tokens) >= 0.8:
+                continue
+            cues.append(f"p{page_number}: {line[:200]}")
+            seen.add(normalized)
+            page_cues += 1
+            if len(cues) >= limit:
+                return cues
+            if page_cues >= 12:
+                break
+    return cues
 
 
 def merge_recall(extraction: Extraction, recall: RecallResult) -> tuple[int, int]:
@@ -192,13 +287,15 @@ def merge_recall(extraction: Extraction, recall: RecallResult) -> tuple[int, int
         requirement_keys.add(key)
         added_requirements += 1
 
-    date_keys = {_date_key(item) for item in extraction.dates}
+    dedupe_dates(extraction.dates)
+    dates_by_key = {_date_key(item): item for item in extraction.dates}
     added_dates = 0
     for item in recall.dates:
         key = _date_key(item)
-        if key in date_keys:
+        if key in dates_by_key:
+            _merge_date_details(dates_by_key[key], item)
             continue
         extraction.dates.append(item)
-        date_keys.add(key)
+        dates_by_key[key] = item
         added_dates += 1
     return added_requirements, added_dates

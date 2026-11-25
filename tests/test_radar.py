@@ -2,7 +2,7 @@ from datetime import date
 
 from conftest import extraction_fixture, full_assessment
 
-from rfp_agent.radar import build_radar
+from rfp_agent.radar import build_calendar, build_radar
 from rfp_agent.schemas import Evidence
 
 
@@ -74,3 +74,63 @@ def test_radar_hides_unverified_consequence():
     rows = build_radar(extraction, full_assessment(), date(2027, 1, 1))
     assert rows[0]["consequence"] == "Not stated"
     assert rows[0]["consequence_evidence"] is None
+
+
+def test_radar_and_calendar_deduplicate_notice_of_intent():
+    extraction = extraction_fixture()
+    original = extraction.gate_candidates[0]
+    nip_evidence = Evidence(
+        quote="Notice of Intent to Propose is due December 18, 2026.",
+        page=1,
+        verified=True,
+        match="exact",
+    )
+    extraction.gate_candidates = [
+        original.model_copy(
+            update={
+                "gate_id": "gate-001",
+                "type": "SUBMISSION_RULES",
+                "title": "Notice of Intent to Propose",
+                "requirement": "Submit the Notice of Intent by December 18, 2026.",
+                "action_date": "2026-12-18",
+                "evidence": nip_evidence,
+            },
+            deep=True,
+        ),
+        original.model_copy(
+            update={
+                "gate_id": "gate-002",
+                "type": "REGISTRATION_OR_CERT",
+                "title": "Minimum Qualification 7 - NIP Filing",
+                "requirement": "The proposer filed a NIP by December 18, 2026.",
+                "action_date": "2026-12-18",
+                "evidence": nip_evidence,
+            },
+            deep=True,
+        ),
+    ]
+    assessment = full_assessment()
+    assessment.gates = [
+        assessment.gates[0].model_copy(update={"gate_id": gate_id})
+        for gate_id in ("gate-001", "gate-002")
+    ]
+    extraction.dates[0] = extraction.dates[0].model_copy(
+        update={
+            "what": "Notice of Intent to Propose (required)",
+            "kind": "OTHER",
+            "date_text": "December 18, 2026, 5:00 PM Pacific",
+            "date": "2026-12-18",
+            "time": "17:00",
+            "timezone": "America/Los_Angeles",
+            "evidence": nip_evidence,
+        },
+        deep=True,
+    )
+
+    rows = build_radar(extraction, assessment, date(2026, 11, 25))
+    events = build_calendar(extraction, rows, date(2026, 11, 25))
+
+    assert len(rows) == 1
+    assert rows[0]["action_date"] == "2026-12-18"
+    assert len(events) == 1
+    assert events[0]["time"] == "17:00"

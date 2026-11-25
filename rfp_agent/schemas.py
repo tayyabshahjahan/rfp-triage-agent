@@ -40,6 +40,7 @@ GateType = Literal[
     "FORMAT_AND_FORMS",
     "ADDENDUM_ACK",
     "ONSITE_PRESENCE",
+    "COMMUNICATION_RESTRICTION",
     "PRICE_CEILING",
 ]
 GateStatus = Literal["PASS", "FAIL", "UNKNOWN"]
@@ -65,6 +66,8 @@ class FactField(StrictModel):
     def missing_values_have_no_evidence(self) -> FactField:
         if self.value == "Not stated" and self.evidence is not None:
             raise ValueError("'Not stated' facts must have null evidence")
+        if self.value != "Not stated" and self.evidence is None:
+            raise ValueError("Stated facts must include evidence")
         return self
 
 

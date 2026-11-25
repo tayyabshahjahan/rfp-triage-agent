@@ -18,6 +18,47 @@ _MONTH_DATE = re.compile(
 )
 
 
+def _topic_key(value: str) -> str:
+    text = re.sub(r"[^a-z0-9]+", " ", value.casefold()).strip()
+    text = re.sub(r"^action\s+", "", text)
+    text = re.sub(r"^minimum qualification\s+\d+\s+", "", text)
+    if "notice of intent" in text or re.search(r"\bnip\b", text):
+        return "notice of intent to propose"
+    if "communication" in text or "procurement contact" in text:
+        return "communication restriction"
+    if "bid security" in text:
+        return "bid security"
+    if "notarized" in text and "attachment" in text:
+        return "notarized attachment"
+    return text
+
+
+def _dedupe_radar_rows(rows: list[dict[str, object]]) -> list[dict[str, object]]:
+    status_order = {"FAIL": 0, "UNKNOWN": 1, "PASS": 2}
+    unique: list[dict[str, object]] = []
+    by_topic: dict[str, dict[str, object]] = {}
+    for row in rows:
+        topic = _topic_key(f"{row['title']} {row['requirement']}")
+        existing = by_topic.get(topic)
+        if existing is None:
+            by_topic[topic] = row
+            unique.append(row)
+            continue
+
+        if status_order[str(row["status"])] < status_order[str(existing["status"])]:
+            existing["status"] = row["status"]
+            existing["status_reason"] = row["status_reason"]
+            existing["suggested_question"] = row["suggested_question"]
+        if existing["action_date"] is None and row["action_date"] is not None:
+            existing["action_date"] = row["action_date"]
+            existing["days_remaining"] = row["days_remaining"]
+            existing["timing"] = row["timing"]
+        if existing["consequence"] == "Not stated" and row["consequence"] != "Not stated":
+            existing["consequence"] = row["consequence"]
+            existing["consequence_evidence"] = row["consequence_evidence"]
+    return unique
+
+
 def _iso_date(value: object | None) -> str | None:
     if not value:
         return None
@@ -121,6 +162,7 @@ def build_radar(
             }
         )
 
+    rows = _dedupe_radar_rows(rows)
     status_order = {"FAIL": 0, "UNKNOWN": 1, "PASS": 2}
     rows.sort(
         key=lambda row: (
@@ -137,8 +179,23 @@ def build_calendar(
     extraction: Extraction, radar_rows: list[dict[str, object]], as_of: date
 ) -> list[dict[str, object]]:
     events: list[dict[str, object]] = []
+    by_key: dict[tuple[str, str], dict[str, object]] = {}
+
+    def add_event(event: dict[str, object]) -> None:
+        key = (str(event["date"]), _topic_key(str(event["title"])))
+        existing = by_key.get(key)
+        if existing is None:
+            by_key[key] = event
+            events.append(event)
+            return
+        if existing.get("time") is None and event.get("time") is not None:
+            existing["time"] = event["time"]
+            existing["timezone"] = event["timezone"]
+        if existing["source"] == "gate" and event["source"] == "deadline":
+            existing.update(event)
+
     for item in extraction.dates:
-        events.append(
+        add_event(
             {
                 "title": item.what,
                 "date": item.date,
@@ -155,7 +212,7 @@ def build_calendar(
         if not row["action_date"]:
             continue
         days, timing = _date_status(str(row["action_date"]), as_of)
-        events.append(
+        add_event(
             {
                 "title": f"Action: {row['title']}",
                 "date": row["action_date"],

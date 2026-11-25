@@ -72,10 +72,26 @@ def normalize_timezone(value: object | None, *hints: object | None) -> str | Non
     return None
 
 
-def normalize_date_time(item: DateItem) -> None:
+def infer_page_timezone(page_text: str | None) -> str | None:
+    if not page_text:
+        return None
+    found: set[str] = set()
+    for raw_line in page_text.splitlines():
+        line = re.sub(r"\s+", " ", raw_line).strip()
+        if not re.search(r"(?i)\b(?:date(?:s| and time)?|all times?|time zone)\b", line):
+            continue
+        timezone_name = normalize_timezone(line)
+        if timezone_name:
+            found.add(timezone_name)
+    return next(iter(found)) if len(found) == 1 else None
+
+
+def normalize_date_time(item: DateItem, page_text: str | None = None) -> None:
     source_time = item.time or item.date_text
     item.time = normalize_time(source_time)
     item.timezone = normalize_timezone(item.timezone, source_time, item.date_text)
+    if item.time is not None and item.timezone is None:
+        item.timezone = infer_page_timezone(page_text)
 
 
 def check_date(item: DateItem) -> str | None:
@@ -109,10 +125,15 @@ def add_as_of(item: DateItem, as_of: date) -> None:
         item.timing = "UPCOMING"
 
 
-def validate_dates(items: list[DateItem], as_of: date) -> list[str]:
+def validate_dates(
+    items: list[DateItem], as_of: date, pages: list[str] | None = None
+) -> list[str]:
     warnings: list[str] = []
     for item in items:
-        normalize_date_time(item)
+        page_text = None
+        if pages is not None and 1 <= item.evidence.page <= len(pages):
+            page_text = pages[item.evidence.page - 1]
+        normalize_date_time(item, page_text)
         warning = check_date(item)
         if warning:
             warnings.append(warning)

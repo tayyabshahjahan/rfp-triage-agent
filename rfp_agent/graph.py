@@ -35,9 +35,12 @@ from .schemas import (
 from .scoring import score_assessment
 from .verify import (
     apply_patches,
+    dedupe_dates,
     ensure_gate_ids,
     failing_item_payload,
     merge_recall,
+    normalize_gate_types,
+    requirement_coverage_cues,
     verify_extraction,
 )
 
@@ -85,27 +88,17 @@ def _verified_copy(extraction: Extraction) -> Extraction:
 
 def _assessment_json(extraction: Extraction, *, fast: bool) -> str:
     payload: dict[str, object] = {
-        "facts": {name: fact.value for name, fact in extraction.facts},
+        "facts": [f"{name}|{fact.value}" for name, fact in extraction.facts],
         "summary": extraction.summary,
         "dates": [
-            {
-                "what": item.what,
-                "kind": item.kind,
-                "date": item.date,
-                "time": item.time,
-                "timezone": item.timezone,
-            }
+            f"{item.kind}|{item.date}|{item.time or '-'}|{item.timezone or '-'}|{item.what}"
             for item in extraction.dates
         ],
         "gate_candidates": [
-            {
-                "gate_id": item.gate_id,
-                "type": item.type,
-                "title": item.title,
-                "requirement": item.requirement,
-                "action_date": item.action_date,
-                "consequence": item.consequence,
-            }
+            (
+                f"{item.gate_id}|{item.type}|{item.action_date or '-'}|{item.title}|"
+                f"{item.requirement[:140]}|{item.consequence[:100]}"
+            )
             for item in extraction.gate_candidates
         ],
         "ambiguities": [
@@ -117,12 +110,10 @@ def _assessment_json(extraction: Extraction, *, fast: bool) -> str:
     }
     if not fast:
         payload["requirements"] = [
-            {
-                "requirement_id": item.requirement_id,
-                "category": item.category,
-                "mandatory": item.mandatory,
-                "text": item.text[:160],
-            }
+            (
+                f"{item.requirement_id or '-'}|{item.category}|{item.mandatory}|"
+                f"{item.text[:120]}"
+            )
             for item in extraction.requirements
         ]
     return json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
@@ -190,6 +181,8 @@ class RfpTriagePipeline:
         extraction, llm_calls, llm_metadata = self._invoke_llm(
             state, "analyze", extract_prompt(state["numbered_text"]), Extraction
         )
+        dedupe_dates(extraction.dates)
+        normalize_gate_types(extraction)
         ensure_gate_ids(extraction)
         return {
             "extraction": extraction,
@@ -237,13 +230,14 @@ class RfpTriagePipeline:
             recall_prompt(
                 state["numbered_text"],
                 [
-                    f"{item.requirement_id or '-'}|{item.mandatory}|{item.text[:48]}"
+                    f"{item.requirement_id or '-'}|{item.mandatory}|{item.text[:32]}"
                     for item in extraction.requirements
                 ],
                 [
                     f"{item.kind}|{item.date}|{item.what[:80]}"
                     for item in extraction.dates
                 ],
+                requirement_coverage_cues(state["pages"], extraction),
             ),
             RecallResult,
         )
@@ -340,6 +334,7 @@ class RfpTriagePipeline:
             model=self.model,
             seconds=total_seconds,
             as_of=state["as_of"],
+            pages=state["pages"],
             score_result=state["score"],
             llm_calls=state.get("llm_calls", []),
         )

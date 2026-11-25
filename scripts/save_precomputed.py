@@ -18,6 +18,7 @@ from rfp_agent.config import PRECOMPUTED_DIR  # noqa: E402
 from rfp_agent.graph import RfpTriagePipeline  # noqa: E402
 from rfp_agent.llm import LlmError  # noqa: E402
 from rfp_agent.pdf_ingest import PdfIngestError  # noqa: E402
+from rfp_agent.schemas import TraceEvent  # noqa: E402
 
 
 def parse_args() -> argparse.Namespace:
@@ -40,10 +41,16 @@ def main() -> int:
     for path in args.pdf:
         try:
             file_bytes = path.read_bytes()
+
+            def show_progress(event: TraceEvent) -> None:
+                detail = f" - {event.note}" if event.note else ""
+                print(f"{event.node}: {event.seconds:.2f}s{detail}", flush=True)
+
             report = RfpTriagePipeline().run_pdf(
                 file_bytes,
                 path.name,
                 as_of=args.as_of,
+                progress=show_progress,
             )
         except (LlmError, PdfIngestError, OSError) as exc:
             failures += 1
