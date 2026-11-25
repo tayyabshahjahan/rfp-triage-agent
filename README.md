@@ -3,7 +3,7 @@
 An evidence-first Streamlit app that reads one text-searchable government RFP and returns a
 human-readable bid triage report plus downloadable JSON and calendar files.
 
-**Live app:** https://rfp-triage-agent.streamlit.app
+**Live app:** https://rfp-triage-agent-vtivapfhpmnl8yypxt2uaf.streamlit.app/
 
 ## What It Does
 
