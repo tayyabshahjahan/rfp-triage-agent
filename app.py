@@ -9,11 +9,17 @@ from html import escape
 
 import streamlit as st
 
-from rfp_agent.cache import cache_key, load_cached, save_cached
-from rfp_agent.config import GEMINI_MODEL, PROJECT_ROOT
+from rfp_agent.cache import (
+    cache_key,
+    load_cached,
+    load_precomputed,
+    pdf_sha256,
+    save_cached,
+)
+from rfp_agent.config import PROJECT_ROOT
 from rfp_agent.graph import RfpTriagePipeline
 from rfp_agent.ics import build_ics
-from rfp_agent.llm import LlmError
+from rfp_agent.llm import LlmError, configured_model_signature
 from rfp_agent.pdf_ingest import PdfIngestError
 from rfp_agent.prompts import PROMPT_VERSION
 from rfp_agent.schemas import FinalReport, TraceEvent
@@ -333,33 +339,57 @@ st.title("RFP Triage Agent")
 st.write("Upload a text-searchable government RFP to get an evidence-backed bid decision.")
 
 with st.sidebar:
-    st.text_input("Model", value=GEMINI_MODEL, disabled=True)
+    model_signature = configured_model_signature()
+    st.text_input("Models", value=model_signature, disabled=True)
     as_of = st.date_input("As of", value=date.today())
     use_cache = st.toggle("Use cached result", value=True)
 
 samples = sorted(path.name for path in SAMPLES_DIR.glob("*.pdf"))
 sample_name = st.selectbox("Try a sample", ["Choose a sample", *samples])
 uploaded_file = st.file_uploader("RFP PDF", type=["pdf"])
+selection = chosen_file(uploaded_file, sample_name)
+selection_hash = pdf_sha256(selection[0]) if selection else None
 
-if st.button("Analyze", type="primary", use_container_width=False):
+if selection_hash != st.session_state.get("selection_hash"):
+    st.session_state["selection_hash"] = selection_hash
     st.session_state.pop("report", None)
-    selection = chosen_file(uploaded_file, sample_name)
+    st.session_state.pop("report_source", None)
+    if selection:
+        precomputed = load_precomputed(selection[0])
+        if precomputed:
+            st.session_state["report"] = precomputed.model_dump(mode="json")
+            st.session_state["report_source"] = "precomputed"
+
+is_precomputed = (
+    selection_hash is not None
+    and st.session_state.get("report_source") == "precomputed"
+)
+action_label = "Re-run live" if is_precomputed else "Analyze"
+
+if st.button(action_label, type="primary", use_container_width=False):
+    if not is_precomputed:
+        st.session_state.pop("report", None)
+        st.session_state.pop("report_source", None)
     if selection is None:
         st.info("Upload a PDF or choose a sample first.")
     else:
         file_bytes, file_name = selection
-        key = cache_key(file_bytes, GEMINI_MODEL, PROMPT_VERSION)
-        cached = load_cached(key) if use_cache else None
+        key = cache_key(file_bytes, model_signature, PROMPT_VERSION)
+        cached = load_cached(key) if use_cache and not is_precomputed else None
         if cached and cached.meta.get("as_of") != as_of.isoformat():
             cached = None
         if cached:
             st.session_state["report"] = cached.model_dump(mode="json")
+            st.session_state["report_source"] = "cache"
             st.success("Loaded the cached analysis.")
         else:
             try:
                 with st.status("Analyzing the RFP", expanded=True) as status:
 
                     def show_progress(event: TraceEvent) -> None:
+                        if event.node == "llm_retry":
+                            status.write(event.note)
+                            return
                         detail = f" - {event.note}" if event.note else ""
                         status.write(f"{humanize(event.node)}: {event.seconds:.2f}s{detail}")
 
@@ -372,6 +402,7 @@ if st.button("Analyze", type="primary", use_container_width=False):
                     status.update(label="Analysis complete", state="complete", expanded=False)
                 save_cached(result, key)
                 st.session_state["report"] = result.model_dump(mode="json")
+                st.session_state["report_source"] = "live"
             except (PdfIngestError, LlmError) as exc:
                 st.error(str(exc))
             except Exception:
@@ -381,6 +412,9 @@ if st.button("Analyze", type="primary", use_container_width=False):
 
 if "report" in st.session_state:
     current_report = FinalReport.model_validate(st.session_state["report"]).model_dump(mode="json")
+    if st.session_state.get("report_source") == "precomputed":
+        saved_date = current_report["meta"].get("saved_result_date", "unknown date")
+        st.info(f"Saved result from a real run on {saved_date}")
     render_header(current_report)
     report_tab, radar_tab, evidence_tab, json_tab = st.tabs(
         ["Report", "Disqualification Radar", "Evidence", "JSON"]

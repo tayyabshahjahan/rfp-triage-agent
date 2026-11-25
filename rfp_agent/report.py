@@ -21,15 +21,20 @@ def build_report(
     model: str,
     seconds: float,
     as_of: date,
+    score_result: dict[str, object] | None = None,
+    llm_calls: list[dict[str, object]] | None = None,
 ) -> FinalReport:
     date_warnings = validate_dates(extraction.dates, as_of)
-    score = score_assessment(assessment)
+    score = score_result or score_assessment(assessment, extraction.gate_candidates)
     radar_rows = build_radar(extraction, assessment, as_of)
     calendar = build_calendar(extraction, radar_rows, as_of)
     warnings = [*date_warnings, *score["warnings"]]  # type: ignore[list-item]
+    calls = llm_calls or []
+    answering_call = calls[-1] if calls else {}
 
     return FinalReport(
         decision=score["decision"],  # type: ignore[arg-type]
+        model_decision=score["model_decision"],  # type: ignore[arg-type]
         fit_score=score["fit_score"],  # type: ignore[arg-type]
         deadlines=[item.model_dump(mode="json") for item in extraction.dates],
         requirements=[item.model_dump(mode="json") for item in extraction.requirements],
@@ -50,7 +55,10 @@ def build_report(
         meta={
             "file_name": file_name,
             "pages": page_count,
-            "model": model,
+            "provider": answering_call.get("provider"),
+            "model": answering_call.get("model", model),
+            "retries": sum(int(call.get("retries", 0)) for call in calls),
+            "llm_calls": calls,
             "prompt_version": PROMPT_VERSION,
             "seconds": round(seconds, 2),
             "as_of": as_of.isoformat(),

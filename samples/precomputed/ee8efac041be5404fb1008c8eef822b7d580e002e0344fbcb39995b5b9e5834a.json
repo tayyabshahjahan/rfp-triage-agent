@@ -1,0 +1,1409 @@
+{
+  "decision": "BID",
+  "model_decision": null,
+  "fit_score": 7,
+  "deadlines": [
+    {
+      "what": "RFP Issue Date",
+      "kind": "ISSUE_DATE",
+      "date_text": "November 20, 2026",
+      "date": "2026-11-20",
+      "time": null,
+      "timezone": null,
+      "mandatory_attendance": null,
+      "superseded": [],
+      "ambiguity_note": null,
+      "evidence": {
+        "quote": "Issue date November 20, 2026",
+        "page": 1,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      },
+      "date_check": "ok",
+      "days_remaining": -5,
+      "timing": "PASSED"
+    },
+    {
+      "what": "Addendum No. 1 Issue Date",
+      "kind": "ADDENDUM",
+      "date_text": "November 24, 2026",
+      "date": "2026-11-24",
+      "time": null,
+      "timezone": null,
+      "mandatory_attendance": null,
+      "superseded": [],
+      "ambiguity_note": null,
+      "evidence": {
+        "quote": "Addendum No. 1 (issued November 24, 2026)",
+        "page": 5,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      },
+      "date_check": "ok",
+      "days_remaining": -1,
+      "timing": "PASSED"
+    },
+    {
+      "what": "Pre-proposal conference email RSVP deadline",
+      "kind": "OTHER",
+      "date_text": "December 1, 2026",
+      "date": "2026-12-01",
+      "time": null,
+      "timezone": null,
+      "mandatory_attendance": false,
+      "superseded": [],
+      "ambiguity_note": null,
+      "evidence": {
+        "quote": "Firms that wish to attend must email\nthe procurement contact by December 1, 2026 to receive the meeting link.",
+        "page": 5,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      },
+      "date_check": "ok",
+      "days_remaining": 6,
+      "timing": "UPCOMING"
+    },
+    {
+      "what": "Pre-proposal conference (virtual, optional)",
+      "kind": "PRE_PROPOSAL_MEETING",
+      "date_text": "December 3, 2026, 10:00 AM",
+      "date": "2026-12-03",
+      "time": "10:00",
+      "timezone": "America/Los_Angeles",
+      "mandatory_attendance": false,
+      "superseded": [],
+      "ambiguity_note": null,
+      "evidence": {
+        "quote": "Pre-proposal conference (virtual, optional) December 3, 2026, 10:00 AM",
+        "page": 5,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      },
+      "date_check": "ok",
+      "days_remaining": 8,
+      "timing": "UPCOMING"
+    },
+    {
+      "what": "Deadline for written questions",
+      "kind": "QUESTIONS_DUE",
+      "date_text": "December 11, 2026, 5:00 PM Pacific",
+      "date": "2026-12-11",
+      "time": "17:00",
+      "timezone": "America/Los_Angeles",
+      "mandatory_attendance": null,
+      "superseded": [],
+      "ambiguity_note": null,
+      "evidence": {
+        "quote": "Written questions due December 11, 2026, 5:00 PM Pacific",
+        "page": 1,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      },
+      "date_check": "ok",
+      "days_remaining": 16,
+      "timing": "UPCOMING"
+    },
+    {
+      "what": "Answers posted as an addendum",
+      "kind": "OTHER",
+      "date_text": "December 18, 2026",
+      "date": "2026-12-18",
+      "time": null,
+      "timezone": null,
+      "mandatory_attendance": null,
+      "superseded": [],
+      "ambiguity_note": null,
+      "evidence": {
+        "quote": "Answers posted as an addendum December 18, 2026",
+        "page": 5,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      },
+      "date_check": "ok",
+      "days_remaining": 23,
+      "timing": "UPCOMING"
+    },
+    {
+      "what": "Proposals due",
+      "kind": "PROPOSAL_DUE",
+      "date_text": "January 15, 2027, 3:00 PM Pacific",
+      "date": "2027-01-15",
+      "time": "15:00",
+      "timezone": "America/Los_Angeles",
+      "mandatory_attendance": null,
+      "superseded": [
+        {
+          "date_text": "January 8, 2027",
+          "date": "2027-01-08",
+          "reason": "Extended by Addendum No. 1"
+        }
+      ],
+      "ambiguity_note": "The original due date of January 8, 2027 was extended to January 15, 2027 at 3:00 PM Pacific by Addendum No. 1.",
+      "evidence": {
+        "quote": "Proposals due January 8, 2027 January 15, 2027, 3:00 PM Pacific\n(revised by Addendum No. 1)",
+        "page": 1,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      },
+      "date_check": "ok",
+      "days_remaining": 51,
+      "timing": "UPCOMING"
+    },
+    {
+      "what": "Finalist demonstrations (virtual)",
+      "kind": "OTHER",
+      "date_text": "Week of February 8, 2027",
+      "date": "2027-02-08",
+      "time": null,
+      "timezone": null,
+      "mandatory_attendance": null,
+      "superseded": [],
+      "ambiguity_note": null,
+      "evidence": {
+        "quote": "Finalist demonstrations (virtual) Week of February 8, 2027",
+        "page": 5,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      },
+      "date_check": "ok",
+      "days_remaining": 75,
+      "timing": "UPCOMING"
+    },
+    {
+      "what": "Anticipated notice of intent to award",
+      "kind": "AWARD",
+      "date_text": "March 1, 2027",
+      "date": "2027-03-01",
+      "time": null,
+      "timezone": null,
+      "mandatory_attendance": null,
+      "superseded": [],
+      "ambiguity_note": null,
+      "evidence": {
+        "quote": "Anticipated notice of intent to award March 1, 2027",
+        "page": 5,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      },
+      "date_check": "ok",
+      "days_remaining": 96,
+      "timing": "UPCOMING"
+    },
+    {
+      "what": "Anticipated contract start (Notice to Proceed)",
+      "kind": "WORK_START",
+      "date_text": "March 22, 2027",
+      "date": "2027-03-22",
+      "time": null,
+      "timezone": null,
+      "mandatory_attendance": null,
+      "superseded": [],
+      "ambiguity_note": null,
+      "evidence": {
+        "quote": "Anticipated contract start (Notice to Proceed) March 22, 2027",
+        "page": 5,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      },
+      "date_check": "ok",
+      "days_remaining": 117,
+      "timing": "UPCOMING"
+    }
+  ],
+  "requirements": [
+    {
+      "requirement_id": null,
+      "category": "SET_ASIDE",
+      "text": "The RFP is set aside for Small Businesses (fewer than 100 employees and average annual gross receipts under $15M over the last three years). The prime Proposer must perform at least 50% of the work by cost.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "This RFP is set aside for Small Businesses. For this RFP a Small Business is a firm with fewer than 100 employees\nand average annual gross receipts of less than $15 million over the last three years.",
+        "page": 10,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "REGISTRATION_LICENSE",
+      "text": "Minimum Qualification 1: The Proposer must have been in business for at least three (3) years as of the proposal due date.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "1. The Proposer has been in business for at least three (3) years as of the proposal due date.",
+        "page": 9,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "PAST_PERFORMANCE",
+      "text": "Minimum Qualification 2: The Proposer must have completed at least two (2) projects in the past five (5) years that delivered AI or workflow-automation software for public-sector or regulated-industry clients, with at least one reference from such a client.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "2. The Proposer has completed at least two (2) projects in the past five (5) years that delivered AI or\nworkflow-automation software for public-sector or regulated-industry clients (for example healthcare,\nfinance, energy or defense). At least one reference must be from such a client.",
+        "page": 9,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "REGISTRATION_LICENSE",
+      "text": "Minimum Qualification 3: The Proposer must be registered to do business in the State of Washington, or will register and provide a Unified Business Identifier (UBI) number before contract execution.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "3. The Proposer is registered to do business in the State of Washington, or will register and provide a Unified\nBusiness Identifier (UBI) number before contract execution.",
+        "page": 9,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "STAFFING",
+      "text": "Minimum Qualification 4: The Proposer must name a Project Manager and a Technical Lead. The Project Manager must attend the project kickoff in person in Port Alder. All other work may be performed remotely from within the United States.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "4. The Proposer names a Project Manager and a Technical Lead. The Project Manager must attend the project\nkickoff in person in Port Alder. All other work may be performed remotely from within the United States.",
+        "page": 10,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "INSURANCE_BONDING",
+      "text": "Minimum Qualification 5: The Proposer must be able to provide the insurance required in Section 8.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "5. The Proposer can provide the insurance required in Section 8.",
+        "page": 10,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": "FR-1",
+      "category": "TECHNICAL_SKILL",
+      "text": "Applicant portal. Web-based, mobile-responsive portal for creating an account, starting an application, uploading files (PDF, DWG, JPG, PNG; up to 250 MB per file) and tracking status.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "FR-1 Applicant portal. Web-based, mobile-responsive portal for creating an account, starting an M\napplication, uploading files (PDF, DWG, JPG, PNG; up to 250 MB per file) and tracking status.",
+        "page": 6,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": "FR-2",
+      "category": "TECHNICAL_SKILL",
+      "text": "AI completeness check. Check each package against the City’s checklist for its permit type (about 46 permit types). Return a plain-language list of missing or deficient items to the applicant within 2 minutes of submission.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "FR-2 AI completeness check. Check each package against the City’s checklist for its permit type M\n(about 46 permit types). Return a plain-language list of missing or deficient items to the\napplicant within 2 minutes of submission.",
+        "page": 6,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": "FR-3",
+      "category": "TECHNICAL_SKILL",
+      "text": "Classification and routing. Classify each package by permit type, scope and complexity, and route it to the right review queue under rules that staff can configure.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "FR-3 Classification and routing. Classify each package by permit type, scope and complexity, and M\nroute it to the right review queue under rules that staff can configure.",
+        "page": 6,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": "FR-4",
+      "category": "TECHNICAL_SKILL",
+      "text": "Plan-review assist. Extract key data from forms and drawings and flag likely conflicts with code citing code section. System must never approve or deny a permit; a licensed City reviewer makes every decision.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "FR-4 Plan-review assist. Extract key data from forms and drawings (for example square footage, M\noccupancy class, construction type, declared valuation). Flag likely conflicts with the Port Alder\nMunicipal Code, Title 17, and the building codes the City has adopted. Each flag must cite the\ncode section it relies on. The system must never approve or deny a permit; a licensed City\nreviewer makes every decision.",
+        "page": 6,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": "FR-5",
+      "category": "TECHNICAL_SKILL",
+      "text": "Applicant assistant. A conversational assistant on the portal that answers permit questions from City-approved content. English and Spanish are mandatory.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "FR-5 Applicant assistant. A conversational assistant on the portal that answers permit questions M\nfrom City-approved content. English and Spanish are mandatory; Vietnamese and Russian are\ndesired. It must not give legal or engineering advice and must hand off to staff on request.",
+        "page": 6,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": "FR-5a",
+      "category": "TECHNICAL_SKILL",
+      "text": "Applicant assistant support for Vietnamese and Russian languages.",
+      "mandatory": "NO",
+      "evidence": {
+        "quote": "Vietnamese and Russian are\ndesired.",
+        "page": 6,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": "FR-6",
+      "category": "TECHNICAL_SKILL",
+      "text": "Staff dashboard. Queues, review timers against service-level targets, workload by reviewer, and exportable reports.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "FR-6 Staff dashboard. Queues, review timers against service-level targets, workload by reviewer, and M\nexportable reports.",
+        "page": 6,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": "FR-7",
+      "category": "TECHNICAL_SKILL",
+      "text": "Email notifications at each status change.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "FR-7 Notifications. Email notifications at each status change. SMS notifications are desired. M / D",
+        "page": 6,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": "FR-7a",
+      "category": "TECHNICAL_SKILL",
+      "text": "SMS notifications.",
+      "mandatory": "NO",
+      "evidence": {
+        "quote": "SMS notifications are desired.",
+        "page": 6,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": "FR-8",
+      "category": "TECHNICAL_SKILL",
+      "text": "Integration. Two-way integration with the City’s permitting system of record (PermitCore v9, hosted on City premises; REST and SOAP APIs available) so that records are not entered twice.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "FR-8 Integration. Two-way integration with the City’s permitting system of record (PermitCore v9, M\nhosted on City premises; REST and SOAP APIs available) so that records are not entered twice.",
+        "page": 6,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": "FR-9",
+      "category": "SECURITY_COMPLIANCE",
+      "text": "Audit trail. Log every AI output with the model version, inputs, timestamp and the reviewer’s action on it. Keep logs for 7 years.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "FR-9 Audit trail. Log every AI output with the model version, inputs, timestamp and the reviewer’s M\naction on it. Keep logs for 7 years.",
+        "page": 6,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": "FR-10",
+      "category": "TECHNICAL_SKILL",
+      "text": "Self-service configuration. Authorized DPI staff can edit checklists, routing rules and assistant content without vendor involvement.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "FR-10 Self-service configuration. Authorized DPI staff can edit checklists, routing rules and assistant M\ncontent without vendor involvement.",
+        "page": 6,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": "FR-11",
+      "category": "TECHNICAL_SKILL",
+      "text": "Inspection scheduling. Applicant self-scheduling of field inspections.",
+      "mandatory": "NO",
+      "evidence": {
+        "quote": "FR-11 Inspection scheduling. Applicant self-scheduling of field inspections. D",
+        "page": 6,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "SECURITY_COMPLIANCE",
+      "text": "Accessibility: WCAG 2.1 Level AA for all public-facing pages.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "Accessibility: WCAG 2.1 Level AA for all public-facing pages [M].",
+        "page": 7,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "SECURITY_COMPLIANCE",
+      "text": "Hosting: all City data stored and processed in data centers located in the United States.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "Hosting: all City data stored and processed in data centers located in the United States [M].",
+        "page": 7,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "CERTIFICATION",
+      "text": "The hosting environment must hold a current SOC 2 Type II report or FedRAMP authorization.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "The hosting environment must hold a current SOC 2 Type II report or FedRAMP authorization [M].",
+        "page": 7,
+        "verified": true,
+        "match": "normalized",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "SECURITY_COMPLIANCE",
+      "text": "Encryption in transit (TLS 1.2 or higher) and at rest.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "Encryption in transit (TLS 1.2 or higher) and at rest [M].",
+        "page": 7,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "SECURITY_COMPLIANCE",
+      "text": "Staff sign-in through the City’s single sign-on (SAML 2.0 or OpenID Connect) with multi-factor authentication.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "Staff sign-in through the City’s single sign-on (SAML 2.0 or OpenID Connect) with multi-factor authentication\n[M].",
+        "page": 7,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "TECHNICAL_SKILL",
+      "text": "Availability of 99.5% during City business hours, measured monthly.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "Availability of 99.5% during City business hours, measured monthly [M].",
+        "page": 7,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "CERTIFICATION",
+      "text": "A SOC 2 Type II report for the Contractor’s own organization is desired.",
+      "mandatory": "NO",
+      "evidence": {
+        "quote": "A SOC 2 Type II report for the Contractor’s own organization is desired [D].",
+        "page": 7,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "SECURITY_COMPLIANCE",
+      "text": "City data must not be used to train or fine-tune models offered to other customers.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "City data must not be used to train or fine-tune models offered to other customers.",
+        "page": 8,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "TECHNICAL_SKILL",
+      "text": "Completeness check outcome must agree with City staff outcome for 90% or more of test applications during UAT.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "Completeness check agrees with City staff outcome 90% or more of test applications",
+        "page": 8,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "TECHNICAL_SKILL",
+      "text": "Incomplete packages wrongly marked complete must be 3% or less during UAT.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "Incomplete package wrongly marked complete 3% or less",
+        "page": 8,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "TECHNICAL_SKILL",
+      "text": "Correct permit type and review queue assigned for 95% or more during UAT.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "Correct permit type and review queue assigned 95% or more",
+        "page": 8,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "TECHNICAL_SKILL",
+      "text": "Applicant assistant answers rated correct by DPI reviewers for 90% or more of test questions per language during UAT.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "Applicant assistant answers rated correct by DPI reviewers (200 test questions 90% or more\nper language)",
+        "page": 8,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "TECHNICAL_SKILL",
+      "text": "Completeness result returned to applicant within 2 minutes for 95% of packages during UAT.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "Completeness result returned to applicant Within 2 minutes for 95% of\npackages",
+        "page": 8,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "TECHNICAL_SKILL",
+      "text": "No Severity 1 or 2 defects open at end of UAT.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "Severity 1 or 2 defects open at end of UAT None",
+        "page": 8,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "INSURANCE_BONDING",
+      "text": "Commercial general liability insurance: $1,000,000 per occurrence / $2,000,000 aggregate, naming the City as additional insured.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "Commercial general liability $1,000,000 per occurrence / $2,000,000\naggregate",
+        "page": 12,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "INSURANCE_BONDING",
+      "text": "Professional liability (errors and omissions) insurance: $2,000,000 per claim.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "Professional liability (errors and omissions) $2,000,000 per claim",
+        "page": 12,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "INSURANCE_BONDING",
+      "text": "Cyber liability insurance, including data breach response: $2,000,000 per claim.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "Cyber liability, including data breach response $2,000,000 per claim",
+        "page": 12,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "INSURANCE_BONDING",
+      "text": "Workers’ compensation insurance: Statutory.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "Workers’ compensation Statutory",
+        "page": 12,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "INSURANCE_BONDING",
+      "text": "Automobile liability insurance (if vehicles are used on City business): $1,000,000 combined single limit.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "Automobile liability (if vehicles are used on City business) $1,000,000 combined single limit",
+        "page": 12,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "COMMERCIAL",
+      "text": "Proposals must remain valid for 120 days after the due date.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "Proposals must remain valid for 120 days after the due date.",
+        "page": 13,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "COMMERCIAL",
+      "text": "Communication restriction: From issue until notice of intent to award, Proposers may communicate about this RFP only in writing with the procurement contact.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "From issue until notice of intent to award, Proposers may communicate about this RFP only in writing with the\nprocurement contact on the cover page.",
+        "page": 10,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "SUBMISSION_FORMAT",
+      "text": "Proposal must not exceed 30 pages for the single text-searchable PDF (excluding attachments and the cost proposal). Cost proposal must be submitted as a separate file, and pricing must not be included anywhere else.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "Submit one text-searchable PDF of no more than 30 pages (excluding attachments and the cost proposal)\nthrough Port Alder Bids by the due date in Section 2. Submit the cost proposal (Attachment C) as a separate file.",
+        "page": 10,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    }
+  ],
+  "reasons": [
+    "The scope of work for an AI-assisted permit intake and completeness automation platform under FR-1 through FR-10 directly matches the firm's core business of building automation platforms and AI-integrated ops software.",
+    "The calculated weighted fit score of 7.25 exceeds the minimum threshold of 5, supported by strong delivery capabilities and zero FAIL gates.",
+    "The budget ceiling of $420,000 provides an attractive revenue opportunity for a small engineering studio delivering cloud-hosted software over a 3-year contract term."
+  ],
+  "summary": [
+    "The City of Port Alder is soliciting proposals for an AI-assisted permit intake and plan review automation platform to reduce application returns and shorten processing time.",
+    "The platform must integrate with the City's PermitCore v9 system, perform automated completeness checks across 46 permit types, and assist staff without replacing licensed human reviewers.",
+    "Proposals are set aside for Small Businesses (fewer than 100 employees and under $15M average gross receipts) and must be submitted electronically via Port Alder Bids by January 15, 2027.",
+    "The contract term is 3 years with two 1-year renewal options, funded under a budget ceiling of $420,000 for implementation and the first two years of service."
+  ],
+  "facts": {
+    "agency": {
+      "value": "City of Port Alder",
+      "evidence": {
+        "quote": "CITY OF PORT ALDER",
+        "page": 1,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    "rfp_number_and_title": {
+      "value": "PA-DPI-2026-114: AI-Assisted Permit Intake and Review Automation Platform",
+      "evidence": {
+        "quote": "RFP No. PA-DPI-2026-114\nAI-Assisted Permit Intake and Review\nAutomation Platform",
+        "page": 1,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    "scope_summary": {
+      "value": "Design, build, deploy and support a cloud-hosted AI-assisted platform for permit intake, completeness checking, automated classification/routing, plan-review assistance, and applicant inquiry assistance integrated with PermitCore v9 for the City of Port Alder Department of Permitting & Inspections.",
+      "evidence": {
+        "quote": "invites qualified firms to\nsubmit proposals to design, build, deploy and support an AI-assisted platform for permit intake and plan review\nin the Department of Permitting & Inspections (“DPI”).",
+        "page": 3,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    "contract_type": {
+      "value": "Not stated",
+      "evidence": null
+    },
+    "contract_value_or_budget": {
+      "value": "Not-to-exceed amount of $420,000 for implementation (Phases 1–4) plus the first two years of subscription, hosting and support.",
+      "evidence": {
+        "quote": "the City has budgeted a not-to-exceed amount of $420,000 for implementation (Phases 1–4) plus\nthe first two years of subscription, hosting and support.",
+        "page": 11,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    "term": {
+      "value": "Three (3) years from Notice to Proceed, with two optional one-year renewals at the City’s discretion.",
+      "evidence": {
+        "quote": "three (3) years from Notice to Proceed, with two optional one-year renewals at the City’s discretion.",
+        "page": 12,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    "place_of_performance": {
+      "value": "Project Manager must attend kickoff in person in Port Alder; all other work may be performed remotely from within the United States.",
+      "evidence": {
+        "quote": "The Project Manager must attend the project\nkickoff in person in Port Alder. All other work may be performed remotely from within the United States.",
+        "page": 10,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    "submission_method": {
+      "value": "Submit one text-searchable PDF (and cost proposal as a separate file) electronically through Port Alder Bids.",
+      "evidence": {
+        "quote": "Submit one text-searchable PDF of no more than 30 pages (excluding attachments and the cost proposal)\nthrough Port Alder Bids by the due date in Section 2. Submit the cost proposal (Attachment C) as a separate file.",
+        "page": 10,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    "evaluation_method": {
+      "value": "Written proposal evaluation (100 points) covering Technical Approach (30), Experience (20), Cost (20), Key Personnel (15), Implementation Plan (10), and Responsible AI/Security (5); followed by finalist virtual demonstrations (up to 25 points), reference checks, and negotiation.",
+      "evidence": {
+        "quote": "The City will award to the Proposer whose proposal offers the best overall value, which may not be the\nlowest price. The written score and the demonstration score are added together to rank finalists.",
+        "page": 11,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    }
+  },
+  "fit_factors": [
+    {
+      "factor": "scope_fit",
+      "score": 9,
+      "reason": "The required scope of designing an AI-assisted permit intake, completeness checking, and workflow routing system integrated via REST/SOAP APIs under requirements FR-1 through FR-10 directly aligns with the company's core focus on building automation platforms and AI-integrated ops software."
+    },
+    {
+      "factor": "eligibility",
+      "score": 5,
+      "reason": "Eligibility is scored neutrally at 5 because key prerequisites—including the 3-year business history under MQ-1, past public-sector AI projects under MQ-2, Washington UBI registration under MQ-3, and the small business set-aside limits under Section 10—depend on unconfirmed company facts."
+    },
+    {
+      "factor": "delivery_feasibility",
+      "score": 8,
+      "reason": "The firm's small senior team is well-suited to build web-based intake portals and AI review tools within the 3-year contract term, provided a designated Project Manager can attend the mandatory in-person kickoff in Port Alder per MQ-4."
+    },
+    {
+      "factor": "commercial_risk",
+      "score": 6,
+      "reason": "Commercial risk is moderate because while the $420,000 budget cap must cover 4 implementation phases plus 2 years of hosting, subscription, and AI model fees, the firm must also absorb strict UAT accuracy thresholds (90% completeness accuracy) and carry $2,000,000 in professional and cyber liability insurance under Section 8."
+    }
+  ],
+  "fit_score_raw": 7.2,
+  "deal_breakers": [],
+  "what_would_change_my_mind": [
+    "Having less than 3 years of operating history as of January 15, 2027 would trigger a mandatory rejection under Minimum Qualification 1.",
+    "Lacking at least two completed public-sector or regulated-industry AI/workflow automation projects in the last 5 years would fail Minimum Qualification 2.",
+    "Inability to assign a Project Manager who can attend the project kickoff in person in Port Alder would violate Minimum Qualification 4."
+  ],
+  "open_questions_for_agency": [
+    "Can the City clarify if third-party AI model consumption costs (API fees) must be fully wrapped into the $420,000 ceiling, or if high usage volume can be billed separately?",
+    "Will the City allow remote participation for the project kickoff if travel conditions restrict the Project Manager's in-person attendance required by Minimum Qualification 4?",
+    "What specific test dataset size will DPI use during UAT to measure the 90% completeness agreement and 3% false-complete threshold specified in the performance metrics?"
+  ],
+  "ambiguities": [
+    {
+      "topic": "Due Date Extension Revision",
+      "detail": "Section 2 schedule block shows a strike-through of January 8, 2027 next to January 15, 2027, 3:00 PM, which is explicitly clarified by Addendum No. 1.",
+      "evidence": {
+        "quote": "Proposals due January 8, 2027 January 15, 2027, 3:00 PM Pacific\n(revised by Addendum No. 1)",
+        "page": 1,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "gate-mq-1",
+      "status": "UNKNOWN",
+      "type": "ELIGIBILITY",
+      "title": "Minimum Qualification 1 - In Business 3 Years",
+      "requirement": "The Proposer must have been in business for at least three (3) years as of the proposal due date.",
+      "status_reason": "Compliance depends on the firm's operating history, which must be verified to confirm at least 3 years in business as required by Minimum Qualification 1.",
+      "suggested_question": "Please confirm how bidders should demonstrate compliance with this requirement: The Proposer must have been in business for at least three (3) years as of the proposal due date.",
+      "action": "Ensure the firm meets the 3-year business operation threshold and document it in proposal Tab 2.",
+      "action_date": null,
+      "days_remaining": null,
+      "timing": null,
+      "consequence": "Proposals that do not meet every minimum qualification below will be rejected without further evaluation.",
+      "consequence_evidence": {
+        "quote": "Proposals that do not meet every minimum qualification below will be rejected without further evaluation.",
+        "page": 9,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      },
+      "evidence": {
+        "quote": "1. The Proposer has been in business for at least three (3) years as of the proposal due date.",
+        "page": 9,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "gate_id": "gate-mq-2",
+      "status": "UNKNOWN",
+      "type": "ELIGIBILITY",
+      "title": "Minimum Qualification 2 - Relevant Project Experience",
+      "requirement": "The Proposer has completed at least two (2) projects in the past five (5) years that delivered AI or workflow-automation software for public-sector or regulated-industry clients.",
+      "status_reason": "Compliance depends on past projects, which must be verified to confirm at least 2 public-sector or regulated-industry AI/workflow automation projects in the past 5 years as required by Minimum Qualification 2.",
+      "suggested_question": "Please confirm how bidders should demonstrate compliance with this requirement: The Proposer has completed at least two (2) projects in the past five (5) years that delivered AI or workflow-automation software for public-sector or regulated-industry clients.",
+      "action": "Provide required project history and client references in proposal Tab 2 and Attachment B.",
+      "action_date": null,
+      "days_remaining": null,
+      "timing": null,
+      "consequence": "Proposals that do not meet every minimum qualification below will be rejected without further evaluation.",
+      "consequence_evidence": {
+        "quote": "Proposals that do not meet every minimum qualification below will be rejected without further evaluation.",
+        "page": 9,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      },
+      "evidence": {
+        "quote": "2. The Proposer has completed at least two (2) projects in the past five (5) years that delivered AI or\nworkflow-automation software for public-sector or regulated-industry clients (for example healthcare,\nfinance, energy or defense). At least one reference must be from such a client.",
+        "page": 9,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "gate_id": "gate-mq-3",
+      "status": "UNKNOWN",
+      "type": "REGISTRATION_OR_CERT",
+      "title": "Minimum Qualification 3 - Washington State Business Registration",
+      "requirement": "The Proposer is registered to do business in the State of Washington, or will register and provide a UBI number before contract execution.",
+      "status_reason": "Compliance depends on state registration, which must be verified to confirm Washington State business registration or ability to acquire a UBI prior to contract execution per Minimum Qualification 3.",
+      "suggested_question": "Please confirm how bidders should demonstrate compliance with this requirement: The Proposer is registered to do business in the State of Washington, or will register and provide a UBI number before contract execution.",
+      "action": "Provide WA UBI number or commitment to obtain prior to contract execution in proposal Tab 2 / Attachment A.",
+      "action_date": null,
+      "days_remaining": null,
+      "timing": null,
+      "consequence": "Proposals that do not meet every minimum qualification below will be rejected without further evaluation.",
+      "consequence_evidence": {
+        "quote": "Proposals that do not meet every minimum qualification below will be rejected without further evaluation.",
+        "page": 9,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      },
+      "evidence": {
+        "quote": "3. The Proposer is registered to do business in the State of Washington, or will register and provide a Unified\nBusiness Identifier (UBI) number before contract execution.",
+        "page": 9,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "gate_id": "gate-mq-4",
+      "status": "UNKNOWN",
+      "type": "ONSITE_PRESENCE",
+      "title": "Minimum Qualification 4 - Key Personnel and In-Person Kickoff",
+      "requirement": "The Proposer names a Project Manager and a Technical Lead. The Project Manager must attend the project kickoff in person in Port Alder.",
+      "status_reason": "Compliance depends on staff location and availability to travel to Port Alder for the mandatory in-person project kickoff per Minimum Qualification 4.",
+      "suggested_question": "Please confirm how bidders should demonstrate compliance with this requirement: The Proposer names a Project Manager and a Technical Lead. The Project Manager must attend the project kickoff in person in Port Alder.",
+      "action": "Name PM and Technical Lead, provide resumes/staffing plan, and agree to in-person PM attendance at kickoff.",
+      "action_date": null,
+      "days_remaining": null,
+      "timing": null,
+      "consequence": "Proposals that do not meet every minimum qualification below will be rejected without further evaluation.",
+      "consequence_evidence": {
+        "quote": "Proposals that do not meet every minimum qualification below will be rejected without further evaluation.",
+        "page": 9,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      },
+      "evidence": {
+        "quote": "4. The Proposer names a Project Manager and a Technical Lead. The Project Manager must attend the project\nkickoff in person in Port Alder. All other work may be performed remotely from within the United States.",
+        "page": 10,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "gate_id": "gate-mq-5",
+      "status": "UNKNOWN",
+      "type": "BONDS_AND_INSURANCE",
+      "title": "Minimum Qualification 5 - Ability to Provide Required Insurance",
+      "requirement": "The Proposer can provide the insurance required in Section 8.",
+      "status_reason": "Compliance depends on insurance coverage, which must be checked against the limits specified in Section 8 including $2M professional liability and $2M cyber liability.",
+      "suggested_question": "Please confirm how bidders should demonstrate compliance with this requirement: The Proposer can provide the insurance required in Section 8.",
+      "action": "Confirm capability to meet all Section 8 insurance limits and conditions.",
+      "action_date": null,
+      "days_remaining": null,
+      "timing": null,
+      "consequence": "Proposals that do not meet every minimum qualification below will be rejected without further evaluation.",
+      "consequence_evidence": {
+        "quote": "Proposals that do not meet every minimum qualification below will be rejected without further evaluation.",
+        "page": 9,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      },
+      "evidence": {
+        "quote": "5. The Proposer can provide the insurance required in Section 8.",
+        "page": 10,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "gate_id": "gate-small-business-set-aside",
+      "status": "UNKNOWN",
+      "type": "ELIGIBILITY",
+      "title": "Small Business Set-Aside Self-Certification",
+      "requirement": "The RFP is set aside for Small Businesses (fewer than 100 employees and average annual gross receipts under $15M over the last three years). Prime must perform at least 50% of the work by cost.",
+      "status_reason": "Compliance depends on employee count and revenue, which must be verified to confirm fewer than 100 employees and under $15M average gross receipts per Section 10.",
+      "suggested_question": "Please confirm how bidders should demonstrate compliance with this requirement: The RFP is set aside for Small Businesses (fewer than 100 employees and average annual gross receipts under $15M over the last three years). Prime must perform at least 50% of the work by cost.",
+      "action": "Self-certify Small Business status on Attachment A and ensure prime meets 50% work share.",
+      "action_date": null,
+      "days_remaining": null,
+      "timing": null,
+      "consequence": "Not stated",
+      "consequence_evidence": null,
+      "evidence": {
+        "quote": "This RFP is set aside for Small Businesses. For this RFP a Small Business is a firm with fewer than 100 employees\nand average annual gross receipts of less than $15 million over the last three years. Proposers must self-certify\non Attachment A.",
+        "page": 10,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "gate_id": "gate-addendum-ack",
+      "status": "PASS",
+      "type": "ADDENDUM_ACK",
+      "title": "Acknowledgement of Addenda",
+      "requirement": "Proposers must acknowledge addenda on Attachment A.",
+      "status_reason": "Acknowledging Addendum No. 1 on Attachment A is a standard procedural step that the firm can easily fulfill.",
+      "suggested_question": null,
+      "action": "Check appropriate addenda acknowledgement boxes on Attachment A.",
+      "action_date": null,
+      "days_remaining": null,
+      "timing": null,
+      "consequence": "Not stated",
+      "consequence_evidence": null,
+      "evidence": {
+        "quote": "Proposers must acknowledge this addendum\non Attachment A.",
+        "page": 5,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "gate_id": "gate-submission-format",
+      "status": "PASS",
+      "type": "SUBMISSION_RULES",
+      "title": "Electronic Portal Submission and Pricing Exclusion",
+      "requirement": "Proposals must be submitted through Port Alder Bids. Emailed, faxed, or paper proposals are rejected. Cost proposal must be a separate file and pricing omitted from the main proposal.",
+      "status_reason": "Submitting a single PDF under 30 pages with a separate cost file via Port Alder Bids before January 15, 2027 at 3:00 PM Pacific is a standard requirement that the firm can meet.",
+      "suggested_question": null,
+      "action": "Upload single PDF main proposal and separate cost proposal file to Port Alder Bids before 3:00 PM Pacific on January 15, 2027.",
+      "action_date": null,
+      "days_remaining": null,
+      "timing": null,
+      "consequence": "Emailed, faxed or paper proposals will not be accepted.",
+      "consequence_evidence": {
+        "quote": "Emailed, faxed or paper proposals will not be accepted.",
+        "page": 10,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      },
+      "evidence": {
+        "quote": "Submit one text-searchable PDF of no more than 30 pages (excluding attachments and the cost proposal)\nthrough Port Alder Bids by the due date in Section 2. Submit the cost proposal (Attachment C) as a separate file.\nEmailed, faxed or paper proposals will not be accepted.",
+        "page": 10,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "gate_id": "gate-budget-cap",
+      "status": "PASS",
+      "type": "PRICE_CEILING",
+      "title": "Not-to-Exceed Budget Ceiling",
+      "requirement": "Total cost proposed on Attachment C must not exceed $420,000.",
+      "status_reason": "The profile describes an AI-native engineering studio capable of delivering software within fixed budgets, which can plausibly comply with the $420,000 budget cap.",
+      "suggested_question": null,
+      "action": "Submit total proposal price equal to or below $420,000.",
+      "action_date": null,
+      "days_remaining": null,
+      "timing": null,
+      "consequence": "Proposals over the $420,000 not-to-exceed amount will be rejected.",
+      "consequence_evidence": {
+        "quote": "Proposals over the $420,000 not-to-exceed amount will be rejected.",
+        "page": 11,
+        "verified": true,
+        "match": "normalized",
+        "page_corrected": false
+      },
+      "evidence": {
+        "quote": "Total (must not exceed $420,000)",
+        "page": 15,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "gate_id": "gate-communication",
+      "status": "PASS",
+      "type": "SUBMISSION_RULES",
+      "title": "Sole Point of Contact Communication Restriction",
+      "requirement": "Proposers may communicate about this RFP only in writing with the procurement contact on the cover page.",
+      "status_reason": "Nothing in the profile prevents the firm from adhering to the strict written communication restrictions specified in Section 10.",
+      "suggested_question": null,
+      "action": "Direct all communications strictly to Dana Whitfield in writing.",
+      "action_date": null,
+      "days_remaining": null,
+      "timing": null,
+      "consequence": "Not stated",
+      "consequence_evidence": null,
+      "evidence": {
+        "quote": "From issue until notice of intent to award, Proposers may communicate about this RFP only in writing with the\nprocurement contact on the cover page.",
+        "page": 10,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    }
+  ],
+  "calendar": [
+    {
+      "title": "RFP Issue Date",
+      "date": "2026-11-20",
+      "time": null,
+      "timezone": null,
+      "source": "deadline",
+      "kind": "ISSUE_DATE",
+      "days_remaining": -5,
+      "timing": "PASSED",
+      "evidence": {
+        "quote": "Issue date November 20, 2026",
+        "page": 1,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "title": "Addendum No. 1 Issue Date",
+      "date": "2026-11-24",
+      "time": null,
+      "timezone": null,
+      "source": "deadline",
+      "kind": "ADDENDUM",
+      "days_remaining": -1,
+      "timing": "PASSED",
+      "evidence": {
+        "quote": "Addendum No. 1 (issued November 24, 2026)",
+        "page": 5,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "title": "Pre-proposal conference email RSVP deadline",
+      "date": "2026-12-01",
+      "time": null,
+      "timezone": null,
+      "source": "deadline",
+      "kind": "OTHER",
+      "days_remaining": 6,
+      "timing": "UPCOMING",
+      "evidence": {
+        "quote": "Firms that wish to attend must email\nthe procurement contact by December 1, 2026 to receive the meeting link.",
+        "page": 5,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "title": "Pre-proposal conference (virtual, optional)",
+      "date": "2026-12-03",
+      "time": "10:00",
+      "timezone": "America/Los_Angeles",
+      "source": "deadline",
+      "kind": "PRE_PROPOSAL_MEETING",
+      "days_remaining": 8,
+      "timing": "UPCOMING",
+      "evidence": {
+        "quote": "Pre-proposal conference (virtual, optional) December 3, 2026, 10:00 AM",
+        "page": 5,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "title": "Deadline for written questions",
+      "date": "2026-12-11",
+      "time": "17:00",
+      "timezone": "America/Los_Angeles",
+      "source": "deadline",
+      "kind": "QUESTIONS_DUE",
+      "days_remaining": 16,
+      "timing": "UPCOMING",
+      "evidence": {
+        "quote": "Written questions due December 11, 2026, 5:00 PM Pacific",
+        "page": 1,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "title": "Answers posted as an addendum",
+      "date": "2026-12-18",
+      "time": null,
+      "timezone": null,
+      "source": "deadline",
+      "kind": "OTHER",
+      "days_remaining": 23,
+      "timing": "UPCOMING",
+      "evidence": {
+        "quote": "Answers posted as an addendum December 18, 2026",
+        "page": 5,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "title": "Proposals due",
+      "date": "2027-01-15",
+      "time": "15:00",
+      "timezone": "America/Los_Angeles",
+      "source": "deadline",
+      "kind": "PROPOSAL_DUE",
+      "days_remaining": 51,
+      "timing": "UPCOMING",
+      "evidence": {
+        "quote": "Proposals due January 8, 2027 January 15, 2027, 3:00 PM Pacific\n(revised by Addendum No. 1)",
+        "page": 1,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "title": "Finalist demonstrations (virtual)",
+      "date": "2027-02-08",
+      "time": null,
+      "timezone": null,
+      "source": "deadline",
+      "kind": "OTHER",
+      "days_remaining": 75,
+      "timing": "UPCOMING",
+      "evidence": {
+        "quote": "Finalist demonstrations (virtual) Week of February 8, 2027",
+        "page": 5,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "title": "Anticipated notice of intent to award",
+      "date": "2027-03-01",
+      "time": null,
+      "timezone": null,
+      "source": "deadline",
+      "kind": "AWARD",
+      "days_remaining": 96,
+      "timing": "UPCOMING",
+      "evidence": {
+        "quote": "Anticipated notice of intent to award March 1, 2027",
+        "page": 5,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "title": "Anticipated contract start (Notice to Proceed)",
+      "date": "2027-03-22",
+      "time": null,
+      "timezone": null,
+      "source": "deadline",
+      "kind": "WORK_START",
+      "days_remaining": 117,
+      "timing": "UPCOMING",
+      "evidence": {
+        "quote": "Anticipated contract start (Notice to Proceed) March 22, 2027",
+        "page": 5,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    }
+  ],
+  "verification": {
+    "total_items": 78,
+    "verified": 77,
+    "unverified": 1,
+    "retries_used": 2
+  },
+  "guardrail_notes": [],
+  "warnings": [],
+  "meta": {
+    "file_name": "Sample-RFP-1-Port-Alder-Permit-Automation.pdf",
+    "pages": 17,
+    "provider": "gemini",
+    "model": "gemini-3.5-flash",
+    "retries": 6,
+    "llm_calls": [
+      {
+        "node": "analyze",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash",
+        "retries": 3,
+        "attempts": 5,
+        "providers_tried": [
+          "gemini"
+        ]
+      },
+      {
+        "node": "recall",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "retries": 0,
+        "attempts": 1,
+        "providers_tried": [
+          "gemini"
+        ]
+      },
+      {
+        "node": "repair",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "retries": 0,
+        "attempts": 1,
+        "providers_tried": [
+          "gemini"
+        ]
+      },
+      {
+        "node": "repair",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "retries": 0,
+        "attempts": 1,
+        "providers_tried": [
+          "gemini"
+        ]
+      },
+      {
+        "node": "assess_full",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash",
+        "retries": 3,
+        "attempts": 5,
+        "providers_tried": [
+          "gemini"
+        ]
+      }
+    ],
+    "prompt_version": "2026-11-25.7",
+    "seconds": 105.05,
+    "as_of": "2026-11-25",
+    "saved_result_date": "2026-11-25"
+  }
+}

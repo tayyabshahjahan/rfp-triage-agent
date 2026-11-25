@@ -1,0 +1,1180 @@
+{
+  "decision": "NO_BID",
+  "model_decision": null,
+  "fit_score": 0,
+  "deadlines": [
+    {
+      "what": "RFP Issue Date",
+      "kind": "ISSUE_DATE",
+      "date_text": "November 18, 2026",
+      "date": "2026-11-18",
+      "time": null,
+      "timezone": null,
+      "mandatory_attendance": null,
+      "superseded": [],
+      "ambiguity_note": null,
+      "evidence": {
+        "quote": "Issue date November 18, 2026",
+        "page": 1,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      },
+      "date_check": "ok",
+      "days_remaining": -7,
+      "timing": "PASSED"
+    },
+    {
+      "what": "Mandatory pre-bid meeting and site walk",
+      "kind": "PRE_PROPOSAL_MEETING",
+      "date_text": "December 3, 2026, 9:00 AM Eastern",
+      "date": "2026-12-03",
+      "time": "09:00",
+      "timezone": "America/New_York",
+      "mandatory_attendance": true,
+      "superseded": [],
+      "ambiguity_note": null,
+      "evidence": {
+        "quote": "Mandatory pre-bid meeting December 3, 2026, 9:00 AM Eastern",
+        "page": 1,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      },
+      "date_check": "ok",
+      "days_remaining": 8,
+      "timing": "UPCOMING"
+    },
+    {
+      "what": "Questions due",
+      "kind": "QUESTIONS_DUE",
+      "date_text": "December 7, 2026, 12:00 PM Eastern",
+      "date": "2026-12-07",
+      "time": "12:00",
+      "timezone": "America/New_York",
+      "mandatory_attendance": null,
+      "superseded": [],
+      "ambiguity_note": null,
+      "evidence": {
+        "quote": "Questions due December 7, 2026, 12:00 PM Eastern",
+        "page": 1,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      },
+      "date_check": "ok",
+      "days_remaining": 12,
+      "timing": "UPCOMING"
+    },
+    {
+      "what": "Final addendum issued",
+      "kind": "ADDENDUM",
+      "date_text": "December 9, 2026",
+      "date": "2026-12-09",
+      "time": null,
+      "timezone": null,
+      "mandatory_attendance": null,
+      "superseded": [],
+      "ambiguity_note": null,
+      "evidence": {
+        "quote": "Final addendum issued December 9, 2026",
+        "page": 5,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      },
+      "date_check": "ok",
+      "days_remaining": 14,
+      "timing": "UPCOMING"
+    },
+    {
+      "what": "Sealed proposals due",
+      "kind": "PROPOSAL_DUE",
+      "date_text": "December 15, 2026, 2:00 PM Eastern",
+      "date": "2026-12-15",
+      "time": "14:00",
+      "timezone": "America/New_York",
+      "mandatory_attendance": null,
+      "superseded": [],
+      "ambiguity_note": null,
+      "evidence": {
+        "quote": "Sealed proposals due December 15, 2026, 2:00 PM Eastern",
+        "page": 1,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      },
+      "date_check": "ok",
+      "days_remaining": 20,
+      "timing": "UPCOMING"
+    },
+    {
+      "what": "Board of Commissioners award",
+      "kind": "AWARD",
+      "date_text": "January 12, 2027",
+      "date": "2027-01-12",
+      "time": null,
+      "timezone": null,
+      "mandatory_attendance": null,
+      "superseded": [],
+      "ambiguity_note": null,
+      "evidence": {
+        "quote": "Board of Commissioners award January 12, 2027",
+        "page": 5,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      },
+      "date_check": "ok",
+      "days_remaining": 48,
+      "timing": "UPCOMING"
+    },
+    {
+      "what": "Contract start date",
+      "kind": "WORK_START",
+      "date_text": "February 1, 2027",
+      "date": "2027-02-01",
+      "time": null,
+      "timezone": null,
+      "mandatory_attendance": null,
+      "superseded": [],
+      "ambiguity_note": null,
+      "evidence": {
+        "quote": "Contract start February 1, 2027",
+        "page": 5,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      },
+      "date_check": "ok",
+      "days_remaining": 68,
+      "timing": "UPCOMING"
+    }
+  ],
+  "requirements": [
+    {
+      "requirement_id": null,
+      "category": "PAST_PERFORMANCE",
+      "text": "At least five (5) years of continuous experience providing commercial janitorial services.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "1. At least five (5) years of continuous experience providing commercial janitorial services.",
+        "page": 7,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "PAST_PERFORMANCE",
+      "text": "Currently servicing at least three (3) facilities of 25,000 sq. ft. or more under contract, with references for each.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "2. Currently servicing at least three (3) facilities of 25,000 sq. ft. or more under contract, with references for each.",
+        "page": 7,
+        "verified": true,
+        "match": "normalized",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "STAFFING",
+      "text": "A local supervisor based within 30 miles of the County Administration Building, available by phone during all service hours and able to be on site within one hour.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "3. A local supervisor based within 30 miles of the County Administration Building, available by phone during all service hours and able to be on site within one hour.",
+        "page": 7,
+        "verified": true,
+        "match": "normalized",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "SECURITY_COMPLIANCE",
+      "text": "Every employee working in County facilities must pass an Ohio BCI and FBI fingerprint background check before starting work.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "4. Every employee working in County facilities must pass an Ohio BCI and FBI fingerprint background check before starting work, due to access to the Courthouse and Board of Elections.",
+        "page": 7,
+        "verified": true,
+        "match": "normalized",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "OTHER",
+      "text": "Employees must wear a company uniform and photo ID badge at all times.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "5. Employees must wear a company uniform and photo ID badge at all times.",
+        "page": 7,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "COMMERCIAL",
+      "text": "The Contractor must pay all employees on this contract no less than the County Living Wage of $17.25 per hour.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "6. The Contractor must pay all employees on this contract no less than the County Living Wage of $17.25 per hour.",
+        "page": 7,
+        "verified": true,
+        "match": "normalized",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "INSURANCE_BONDING",
+      "text": "A current Ohio Bureau of Workers’ Compensation certificate.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "7. A current Ohio Bureau of Workers’ Compensation certificate.",
+        "page": 7,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "INSURANCE_BONDING",
+      "text": "Submit a bid guaranty consisting of a bid bond or certified check for 10% of the first-year bid price with the proposal.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "Bid guaranty: a bid bond or certified check for 10% of the first-year bid price, submitted with the proposal.",
+        "page": 7,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "INSURANCE_BONDING",
+      "text": "Provide a performance bond for 100% of the annual contract price within 10 days of award.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "Performance bond: 100% of the annual contract price, within 10 days of award.",
+        "page": 7,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "INSURANCE_BONDING",
+      "text": "Provide employee dishonesty (fidelity) bond of $50,000.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "Employee dishonesty (fidelity) bond: $50,000.",
+        "page": 7,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "INSURANCE_BONDING",
+      "text": "Maintain Commercial General Liability insurance of $1,000,000 per occurrence / $2,000,000 aggregate, naming the County as an additional insured.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "Commercial general liability: $1,000,000 per occurrence / $2,000,000 aggregate, County named as additional insured.",
+        "page": 7,
+        "verified": true,
+        "match": "normalized",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "INSURANCE_BONDING",
+      "text": "Maintain Automobile Liability insurance of $1,000,000 combined single limit.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "Automobile liability: $1,000,000 combined single limit.",
+        "page": 7,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "STAFFING",
+      "text": "The Contractor must provide at least the required labor hours on each service day as listed in Section 1.2.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "The Contractor must provide at least the following labor hours on each service day. Bids that show fewer hours on Form 1 will be considered non-responsive.",
+        "page": 4,
+        "verified": true,
+        "match": "normalized",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "TECHNICAL_SKILL",
+      "text": "Safety Data Sheets for every chemical must be kept in a binder in each janitor closet and submitted to the Facilities Manager before first use.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "Safety Data Sheets for every chemical must be kept in a binder in each janitor closet and submitted to the Facilities Manager before first use.",
+        "page": 6,
+        "verified": true,
+        "match": "normalized",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "TECHNICAL_SKILL",
+      "text": "Vacuums must have HEPA filtration.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "Vacuums must have HEPA filtration.",
+        "page": 6,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "SUBMISSION_FORMAT",
+      "text": "Submit one (1) original and three (3) copies in a sealed envelope marked “RFP LC-FM-2027-03 — Janitorial Services — DO NOT OPEN”. Emailed or faxed proposals will not be accepted.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "Submit one (1) original and three (3) copies in a sealed envelope marked “RFP LC-FM-2027-03 — Janitorial Services — DO NOT OPEN”. Proposals may be hand-delivered or mailed to the Clerk of the Board, 220 Courthouse Square, Room 104, Larkspur, Ohio. Emailed or faxed proposals will not be accepted.",
+        "page": 7,
+        "verified": true,
+        "match": "normalized",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "COMMERCIAL",
+      "text": "After opening, proposals may not be withdrawn for 90 days.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "After opening, proposals may not be withdrawn for 90 days.",
+        "page": 9,
+        "verified": true,
+        "match": "normalized",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "COMMERCIAL",
+      "text": "Bidders must not contact Commissioners or other County staff about this RFP until award.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "Bidders must not contact Commissioners or other County staff about this RFP until award.",
+        "page": 9,
+        "verified": true,
+        "match": "normalized",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "SUBMISSION_FORMAT",
+      "text": "Bidders must acknowledge each addendum on Form 1.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "Bidders must acknowledge each addendum on Form 1.",
+        "page": 9,
+        "verified": true,
+        "match": "normalized",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "REGISTRATION_LICENSE",
+      "text": "The County will not award to a Bidder with an unresolved finding for recovery issued by the Auditor of State.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "The County will not award to a Bidder with an unresolved finding for recovery issued by the Auditor of State.",
+        "page": 9,
+        "verified": true,
+        "match": "normalized",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "OTHER",
+      "text": "Attendance at the pre-bid meeting and site walk on December 3, 2026 at 9:00 AM is mandatory. Proposals from firms that did not sign in at the site walk will be rejected as non-responsive.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "Attendance at the pre-bid meeting and site walk on December 3, 2026 at 9:00 AM is mandatory. Proposals from firms that did not sign in at the site walk will be rejected as non-responsive. No alternate site walk will be offered.",
+        "page": 3,
+        "verified": true,
+        "match": "normalized",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "SUBMISSION_FORMAT",
+      "text": "Proposals must include: Completed Bid Form (Form 1) with monthly prices for each facility.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "1. Completed Bid Form (Form 1) with monthly prices for each facility.",
+        "page": 7,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "SUBMISSION_FORMAT",
+      "text": "Proposals must include: Company experience, staffing plan and supervisor details (Form 2).",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "2. Company experience, staffing plan and supervisor details (Form 2).",
+        "page": 7,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "SUBMISSION_FORMAT",
+      "text": "Proposals must include: Three references for facilities of 25,000 sq. ft. or more (Form 3).",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "3. Three references for facilities of 25,000 sq. ft. or more (Form 3).",
+        "page": 7,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "SUBMISSION_FORMAT",
+      "text": "Proposals must include: MBE/WBE good-faith effort statement (Form 4).",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "4. MBE/WBE good-faith effort statement (Form 4).",
+        "page": 8,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "SUBMISSION_FORMAT",
+      "text": "Proposals must include: Signed Non-Collusion Affidavit (Form 5), notarized.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "5. Signed Non-Collusion Affidavit (Form 5), notarized.",
+        "page": 8,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "SUBMISSION_FORMAT",
+      "text": "Proposals must include: Drug-Free Workplace Certification (Form 6) and Affidavit of Personal Property Tax Status (Form 7).",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "6. Drug-Free Workplace Certification (Form 6) and Affidavit of Personal Property Tax Status (Form 7).",
+        "page": 8,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "SUBMISSION_FORMAT",
+      "text": "Proposals must include: Bid guaranty and proof of insurance.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "7. Bid guaranty and proof of insurance.",
+        "page": 8,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "TECHNICAL_SKILL",
+      "text": "The Contractor must have a written quality control plan, submitted with the bid (Form 2), including how supervisors check work each night.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "The Contractor must have a written quality control plan, submitted with the bid (Form 2), including how supervisors check work each night.",
+        "page": 8,
+        "verified": true,
+        "match": "normalized",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "SECURITY_COMPLIANCE",
+      "text": "Keys, access cards and alarm codes are issued to named Contractor supervisors only and must be signed for. They may not be copied or shared.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "Keys, access cards and alarm codes are issued to named Contractor supervisors only and must be signed for. They may not be copied or shared.",
+        "page": 8,
+        "verified": true,
+        "match": "normalized",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "SECURITY_COMPLIANCE",
+      "text": "Lost keys or cards must be reported within 2 hours. The Contractor pays $500 per lost key plus the cost of re-keying affected locks.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "Lost keys or cards must be reported within 2 hours. The Contractor pays $500 per lost key plus the cost of re-keying affected locks.",
+        "page": 8,
+        "verified": true,
+        "match": "normalized",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "SECURITY_COMPLIANCE",
+      "text": "Contractor employees must not read, move, copy or discard any County documents, open desk drawers, use County phones or computers, or admit any other person into a building.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "Contractor employees must not read, move, copy or discard any County documents, open desk drawers, use County phones or computers, or admit any other person into a building.",
+        "page": 8,
+        "verified": true,
+        "match": "normalized",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "SECURITY_COMPLIANCE",
+      "text": "Only employees who have passed the background check in Section 4 and are on the County’s approved list may enter County facilities.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "Only employees who have passed the background check in Section 4 and are on the County’s approved list may enter County facilities.",
+        "page": 8,
+        "verified": true,
+        "match": "normalized",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "SECURITY_COMPLIANCE",
+      "text": "The County may require the removal of any employee from County work for any lawful reason.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "The County may require the removal of any employee from County work for any lawful reason.",
+        "page": 8,
+        "verified": true,
+        "match": "normalized",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "OTHER",
+      "text": "Smoking, vaping and the use of alcohol or drugs on County property are prohibited. The Contractor must maintain a drug-free workplace (Form 6).",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "Smoking, vaping and the use of alcohol or drugs on County property are prohibited. The Contractor must maintain a drug-free workplace (Form 6).",
+        "page": 8,
+        "verified": true,
+        "match": "normalized",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "STAFFING",
+      "text": "The Contractor must be fully staffed and ready to perform on the contract start date.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "The Contractor must be fully staffed and ready to perform on the contract start date.",
+        "page": 9,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "SUBMISSION_FORMAT",
+      "text": "Within 10 days after award, the Contractor will submit a transition plan covering hiring, background checks, training on the County’s security procedures, and the initial deep clean of all facilities, to be completed within the first 30 days.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "Within 10 days after award, the Contractor will submit a transition plan covering hiring, background checks, training on the County’s security procedures, and the initial deep clean of all facilities, to be completed within the first 30 days.",
+        "page": 9,
+        "verified": true,
+        "match": "normalized",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "SET_ASIDE",
+      "text": "The County encourages, but does not require, the Contractor to offer employment to qualified staff of the outgoing contractor.",
+      "mandatory": "NO",
+      "evidence": {
+        "quote": "The County encourages, but does not require, the Contractor to offer employment to qualified staff of the outgoing contractor.",
+        "page": 9,
+        "verified": true,
+        "match": "normalized",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "COMMERCIAL",
+      "text": "Prices must not include Ohio sales and use tax because the County is exempt.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "The County is exempt from Ohio sales and use tax. Prices must not include these taxes.",
+        "page": 9,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "requirement_id": null,
+      "category": "COMMERCIAL",
+      "text": "The Contractor must not discriminate against any employee or applicant on any basis protected by federal or Ohio law.",
+      "mandatory": "YES",
+      "evidence": {
+        "quote": "The Contractor must not discriminate against any employee or applicant on any basis protected by federal or Ohio law.",
+        "page": 9,
+        "verified": true,
+        "match": "normalized",
+        "page_corrected": false
+      }
+    }
+  ],
+  "reasons": [
+    "The RFP is for physical janitorial and custodial services across 148,000 square feet (page 3), which completely falls outside our core capabilities as an AI-native engineering studio.",
+    "Bidders must demonstrate at least five years of continuous experience providing commercial janitorial services (page 7), which is completely unrelated to our engineering domain.",
+    "Bidders must currently service at least three facilities of 25,000 square feet or more with commercial cleaning references (page 7)."
+  ],
+  "summary": [
+    "Larkspur County is soliciting proposals for RFP No. LC-FM-2027-03 for nightly cleaning, day porter service, and periodic floor care across five facilities totaling 148,000 sq. ft.",
+    "Attendance at the pre-bid meeting and site walk on December 3, 2026, at 9:00 AM is mandatory, with non-attendees rejected as non-responsive.",
+    "Sealed proposals are due by December 15, 2026, at 2:00 PM Eastern, and the contract term runs from February 1, 2027, through January 31, 2029, with two optional one-year renewals.",
+    "Bidders must submit bid bonds, pass background checks, meet minimum labor hour commitments, and pay employees a living wage of at least $17.25/hr."
+  ],
+  "facts": {
+    "agency": {
+      "value": "Larkspur County, Ohio",
+      "evidence": {
+        "quote": "Larkspur County (the “County”)",
+        "page": 3,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    "rfp_number_and_title": {
+      "value": "RFP No. LC-FM-2027-03 - Janitorial and Custodial Services for the County Administration Complex and Satellite Facilities",
+      "evidence": {
+        "quote": "RFP No. LC-FM-2027-03\nJanitorial and Custodial Services for the County\nAdministration Complex and Satellite Facilities",
+        "page": 1,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    "scope_summary": {
+      "value": "Provide nightly cleaning, day porter service, and periodic floor care for five Larkspur County facilities totaling approximately 148,000 square feet.",
+      "evidence": {
+        "quote": "Larkspur County (the “County”) seeks a qualified janitorial contractor to provide nightly cleaning, day porter service and periodic floor care at five County facilities, totalling approximately 148,000 square feet.",
+        "page": 3,
+        "verified": true,
+        "match": "normalized",
+        "page_corrected": false
+      }
+    },
+    "contract_type": {
+      "value": "Not stated",
+      "evidence": null
+    },
+    "contract_value_or_budget": {
+      "value": "Not stated",
+      "evidence": null
+    },
+    "term": {
+      "value": "February 1, 2027 through January 31, 2029, with two optional one-year renewals by mutual agreement.",
+      "evidence": {
+        "quote": "Contract term: February 1, 2027 through January 31, 2029, with two optional one-year renewals by mutual agreement.",
+        "page": 8,
+        "verified": true,
+        "match": "normalized",
+        "page_corrected": false
+      }
+    },
+    "place_of_performance": {
+      "value": "Five County facilities: County Administration Building (220 Courthouse Square), Larkspur County Courthouse (200 Courthouse Square), Health Department (1415 Mill Street), Highway Department Offices (3800 State Route 61), and Board of Elections (88 West Liberty Street).",
+      "evidence": {
+        "quote": "County Administration Building 220 Courthouse Square\nLarkspur County Courthouse 200 Courthouse Square\nHealth Department 1415 Mill Street\nHighway Department Offices 3800 State Route 61\nBoard of Elections 88 West Liberty Street",
+        "page": 3,
+        "verified": false,
+        "match": "none",
+        "page_corrected": false
+      }
+    },
+    "submission_method": {
+      "value": "Sealed proposals (1 original and 3 copies) hand-delivered or mailed in a sealed envelope marked \"RFP LC-FM-2027-03 — Janitorial Services — DO NOT OPEN\" to the Clerk of the Board, 220 Courthouse Square, Room 104, Larkspur, Ohio. Emailed or faxed proposals will not be accepted.",
+      "evidence": {
+        "quote": "Submit one (1) original and three (3) copies in a sealed envelope marked “RFP LC-FM-2027-03 — Janitorial Services — DO NOT OPEN”. Proposals may be hand-delivered or mailed to the Clerk of the Board, 220 Courthouse Square, Room 104, Larkspur, Ohio. Emailed or faxed proposals will not be accepted.",
+        "page": 7,
+        "verified": true,
+        "match": "normalized",
+        "page_corrected": false
+      }
+    },
+    "evaluation_method": {
+      "value": "Awarded to the lowest responsive and responsible bidder, after applying a 5% local business preference.",
+      "evidence": {
+        "quote": "The contract will be awarded to the lowest responsive and responsible bidder, after applying the local business preference.",
+        "page": 8,
+        "verified": true,
+        "match": "normalized",
+        "page_corrected": false
+      }
+    }
+  },
+  "fit_factors": [
+    {
+      "factor": "scope_fit",
+      "score": 0,
+      "reason": "The scope of RFP No. LC-FM-2027-03 requires physical janitorial and custodial services for 148,000 square feet of facilities (page 3), which completely lacks relevance to an AI-native engineering studio."
+    }
+  ],
+  "fit_score_raw": 0.0,
+  "deal_breakers": [
+    "Requirement for five years of continuous experience providing commercial janitorial services (page 7) would be a deal-breaker if unmet."
+  ],
+  "what_would_change_my_mind": [
+    "If the opportunity were restructured to focus on digital software or AI ops platforms rather than physical custodial services (page 3)."
+  ],
+  "open_questions_for_agency": [
+    "Is there any software, automation, or technology component included in RFP No. LC-FM-2027-03 beyond physical janitorial services (page 3)?"
+  ],
+  "ambiguities": [],
+  "gates": [
+    {
+      "gate_id": "gate-1",
+      "status": "UNKNOWN",
+      "type": "MANDATORY_MEETING",
+      "title": "Mandatory Pre-Bid Meeting and Site Walk Attendance",
+      "requirement": "Bidders must attend and sign in at the pre-bid meeting and site walk on December 3, 2026 at 9:00 AM.",
+      "status_reason": "Compliance depends on physical attendance at the mandatory site walk on December 3, 2026, at 9:00 AM (page 3), which must be confirmed.",
+      "suggested_question": "Please confirm how bidders should demonstrate compliance with this requirement: Bidders must attend and sign in at the pre-bid meeting and site walk on December 3, 2026 at 9:00 AM.",
+      "action": "Attend the site walk at 220 Courthouse Square, Larkspur, Ohio and sign in.",
+      "action_date": "2026-12-03",
+      "days_remaining": 8,
+      "timing": "UPCOMING",
+      "consequence": "Proposals from firms that did not sign in at the site walk will be rejected as non-responsive.",
+      "consequence_evidence": {
+        "quote": "Proposals from firms that did not sign in at the site walk will be rejected as non-responsive.",
+        "page": 3,
+        "verified": true,
+        "match": "normalized",
+        "page_corrected": false
+      },
+      "evidence": {
+        "quote": "Attendance at the pre-bid meeting and site walk on December 3, 2026 at 9:00 AM is mandatory.",
+        "page": 3,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "gate_id": "gate-2",
+      "status": "UNKNOWN",
+      "type": "BONDS_AND_INSURANCE",
+      "title": "Bid Guaranty Submission",
+      "requirement": "Each proposal must be accompanied by a bid bond or certified check for 10% of the first-year bid price.",
+      "status_reason": "Compliance depends on securing a 10% bid bond or certified check submitted with the proposal (page 7), which must be confirmed.",
+      "suggested_question": "Please confirm how bidders should demonstrate compliance with this requirement: Each proposal must be accompanied by a bid bond or certified check for 10% of the first-year bid price.",
+      "action": "Submit bid bond or certified check with the proposal.",
+      "action_date": null,
+      "days_remaining": null,
+      "timing": null,
+      "consequence": "Each proposal must be accompanied by a bid guaranty as described in Section 6.",
+      "consequence_evidence": {
+        "quote": "Each proposal must be accompanied by a bid guaranty as described in Section 6.",
+        "page": 3,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      },
+      "evidence": {
+        "quote": "Bid guaranty: a bid bond or certified check for 10% of the first-year bid price, submitted with the proposal.",
+        "page": 7,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "gate_id": "gate-5",
+      "status": "UNKNOWN",
+      "type": "ELIGIBILITY",
+      "title": "Five Years Commercial Janitorial Experience",
+      "requirement": "At least five (5) years of continuous experience providing commercial janitorial services.",
+      "status_reason": "Gate of type ELIGIBILITY regarding five years of continuous commercial janitorial experience (page 7) must be UNKNOWN.",
+      "suggested_question": "Please confirm how bidders should demonstrate compliance with this requirement: At least five (5) years of continuous experience providing commercial janitorial services.",
+      "action": "Provide proof of 5 years continuous experience in Form 2.",
+      "action_date": null,
+      "days_remaining": null,
+      "timing": null,
+      "consequence": "Not stated",
+      "consequence_evidence": null,
+      "evidence": {
+        "quote": "1. At least five (5) years of continuous experience providing commercial janitorial services.",
+        "page": 7,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "gate_id": "gate-6",
+      "status": "UNKNOWN",
+      "type": "ELIGIBILITY",
+      "title": "Servicing 3 Facilities of 25k Sq Ft or More",
+      "requirement": "Currently servicing at least three (3) facilities of 25,000 sq. ft. or more under contract, with references for each.",
+      "status_reason": "Gate of type ELIGIBILITY requiring three current references for facilities of 25,000 sq. ft. or more (page 7) must be UNKNOWN.",
+      "suggested_question": "Please confirm how bidders should demonstrate compliance with this requirement: Currently servicing at least three (3) facilities of 25,000 sq. ft. or more under contract, with references for each.",
+      "action": "Submit three valid references on Form 3.",
+      "action_date": null,
+      "days_remaining": null,
+      "timing": null,
+      "consequence": "Not stated",
+      "consequence_evidence": null,
+      "evidence": {
+        "quote": "2. Currently servicing at least three (3) facilities of 25,000 sq. ft. or more under contract, with references for each.",
+        "page": 7,
+        "verified": true,
+        "match": "normalized",
+        "page_corrected": false
+      }
+    },
+    {
+      "gate_id": "gate-7",
+      "status": "UNKNOWN",
+      "type": "ELIGIBILITY",
+      "title": "Unresolved Findings for Recovery",
+      "requirement": "Bidder must not have an unresolved finding for recovery issued by the Ohio Auditor of State.",
+      "status_reason": "Gate of type ELIGIBILITY regarding unresolved findings for recovery with the Ohio Auditor of State (page 9) must be UNKNOWN.",
+      "suggested_question": "Please confirm how bidders should demonstrate compliance with this requirement: Bidder must not have an unresolved finding for recovery issued by the Ohio Auditor of State.",
+      "action": "Ensure clear record with Auditor of State.",
+      "action_date": null,
+      "days_remaining": null,
+      "timing": null,
+      "consequence": "The County will not award to a Bidder with an unresolved finding for recovery issued by the Auditor of State.",
+      "consequence_evidence": {
+        "quote": "The County will not award to a Bidder with an unresolved finding for recovery issued by the Auditor of State.",
+        "page": 9,
+        "verified": true,
+        "match": "normalized",
+        "page_corrected": false
+      },
+      "evidence": {
+        "quote": "The County will not award to a Bidder with an unresolved finding for recovery issued by the Auditor of State.",
+        "page": 9,
+        "verified": true,
+        "match": "normalized",
+        "page_corrected": false
+      }
+    },
+    {
+      "gate_id": "gate-3",
+      "status": "PASS",
+      "type": "SUBMISSION_RULES",
+      "title": "Minimum Labor Hours Pricing Commitment",
+      "requirement": "Bidders must show at least the specified minimum labor hours per facility on Form 1.",
+      "status_reason": "Nothing conflicts with submitting the required minimum labor hours on Form 1 (page 4).",
+      "suggested_question": null,
+      "action": "Ensure labor hours submitted on Form 1 meet or exceed minimum thresholds.",
+      "action_date": null,
+      "days_remaining": null,
+      "timing": null,
+      "consequence": "Bids that show fewer hours on Form 1 will be considered non-responsive.",
+      "consequence_evidence": {
+        "quote": "Bids that show fewer hours on Form 1 will be considered non-responsive.",
+        "page": 4,
+        "verified": true,
+        "match": "normalized",
+        "page_corrected": false
+      },
+      "evidence": {
+        "quote": "The Contractor must provide at least the following labor hours on each service day. Bids that show fewer hours on Form 1 will be considered non-responsive.",
+        "page": 4,
+        "verified": true,
+        "match": "normalized",
+        "page_corrected": false
+      }
+    },
+    {
+      "gate_id": "gate-4",
+      "status": "PASS",
+      "type": "SUBMISSION_RULES",
+      "title": "No Email or Fax Submission",
+      "requirement": "Proposals must be submitted via physical mail or hand delivery; email and fax submissions are prohibited.",
+      "status_reason": "Physical delivery of sealed bids to Room 104 in Larkspur, Ohio (page 7) can be plausibly complied with.",
+      "suggested_question": null,
+      "action": "Deliver physical sealed bid envelope to Room 104.",
+      "action_date": null,
+      "days_remaining": null,
+      "timing": null,
+      "consequence": "Emailed or faxed proposals will not be accepted.",
+      "consequence_evidence": {
+        "quote": "Emailed or faxed proposals will not be accepted.",
+        "page": 7,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      },
+      "evidence": {
+        "quote": "Emailed or faxed proposals will not be accepted.",
+        "page": 7,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    }
+  ],
+  "calendar": [
+    {
+      "title": "RFP Issue Date",
+      "date": "2026-11-18",
+      "time": null,
+      "timezone": null,
+      "source": "deadline",
+      "kind": "ISSUE_DATE",
+      "days_remaining": -7,
+      "timing": "PASSED",
+      "evidence": {
+        "quote": "Issue date November 18, 2026",
+        "page": 1,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "title": "Action: Mandatory Pre-Bid Meeting and Site Walk Attendance",
+      "date": "2026-12-03",
+      "time": null,
+      "timezone": null,
+      "source": "gate",
+      "kind": "MANDATORY_MEETING",
+      "days_remaining": 8,
+      "timing": "UPCOMING",
+      "evidence": {
+        "quote": "Attendance at the pre-bid meeting and site walk on December 3, 2026 at 9:00 AM is mandatory.",
+        "page": 3,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "title": "Mandatory pre-bid meeting and site walk",
+      "date": "2026-12-03",
+      "time": "09:00",
+      "timezone": "America/New_York",
+      "source": "deadline",
+      "kind": "PRE_PROPOSAL_MEETING",
+      "days_remaining": 8,
+      "timing": "UPCOMING",
+      "evidence": {
+        "quote": "Mandatory pre-bid meeting December 3, 2026, 9:00 AM Eastern",
+        "page": 1,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "title": "Questions due",
+      "date": "2026-12-07",
+      "time": "12:00",
+      "timezone": "America/New_York",
+      "source": "deadline",
+      "kind": "QUESTIONS_DUE",
+      "days_remaining": 12,
+      "timing": "UPCOMING",
+      "evidence": {
+        "quote": "Questions due December 7, 2026, 12:00 PM Eastern",
+        "page": 1,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "title": "Final addendum issued",
+      "date": "2026-12-09",
+      "time": null,
+      "timezone": null,
+      "source": "deadline",
+      "kind": "ADDENDUM",
+      "days_remaining": 14,
+      "timing": "UPCOMING",
+      "evidence": {
+        "quote": "Final addendum issued December 9, 2026",
+        "page": 5,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "title": "Sealed proposals due",
+      "date": "2026-12-15",
+      "time": "14:00",
+      "timezone": "America/New_York",
+      "source": "deadline",
+      "kind": "PROPOSAL_DUE",
+      "days_remaining": 20,
+      "timing": "UPCOMING",
+      "evidence": {
+        "quote": "Sealed proposals due December 15, 2026, 2:00 PM Eastern",
+        "page": 1,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "title": "Board of Commissioners award",
+      "date": "2027-01-12",
+      "time": null,
+      "timezone": null,
+      "source": "deadline",
+      "kind": "AWARD",
+      "days_remaining": 48,
+      "timing": "UPCOMING",
+      "evidence": {
+        "quote": "Board of Commissioners award January 12, 2027",
+        "page": 5,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    },
+    {
+      "title": "Contract start date",
+      "date": "2027-02-01",
+      "time": null,
+      "timezone": null,
+      "source": "deadline",
+      "kind": "WORK_START",
+      "days_remaining": 68,
+      "timing": "UPCOMING",
+      "evidence": {
+        "quote": "Contract start February 1, 2027",
+        "page": 5,
+        "verified": true,
+        "match": "exact",
+        "page_corrected": false
+      }
+    }
+  ],
+  "verification": {
+    "total_items": 66,
+    "verified": 65,
+    "unverified": 1,
+    "retries_used": 2
+  },
+  "guardrail_notes": [],
+  "warnings": [],
+  "meta": {
+    "file_name": "Sample-RFP-2-Larkspur-County-Janitorial.pdf",
+    "pages": 12,
+    "provider": "gemini",
+    "model": "gemini-3.5-flash",
+    "retries": 7,
+    "llm_calls": [
+      {
+        "node": "analyze",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash",
+        "retries": 3,
+        "attempts": 5,
+        "providers_tried": [
+          "gemini"
+        ]
+      },
+      {
+        "node": "recall",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "retries": 1,
+        "attempts": 2,
+        "providers_tried": [
+          "gemini"
+        ]
+      },
+      {
+        "node": "repair",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "retries": 0,
+        "attempts": 1,
+        "providers_tried": [
+          "gemini"
+        ]
+      },
+      {
+        "node": "repair",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "retries": 0,
+        "attempts": 1,
+        "providers_tried": [
+          "gemini"
+        ]
+      },
+      {
+        "node": "assess_fast",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash",
+        "retries": 3,
+        "attempts": 5,
+        "providers_tried": [
+          "gemini"
+        ]
+      }
+    ],
+    "prompt_version": "2026-11-25.7",
+    "seconds": 91.97,
+    "as_of": "2026-11-25",
+    "saved_result_date": "2026-11-25"
+  }
+}

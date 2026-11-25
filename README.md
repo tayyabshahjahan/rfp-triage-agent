@@ -27,8 +27,10 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-Set `GEMINI_API_KEY` in your environment. The app reads environment variables first and then
-Streamlit secrets.
+Set at least one of `GEMINI_API_KEY` or `MISTRAL_API_KEY`. The default provider order is
+`gemini,mistral`; configure it with `LLM_PROVIDER_ORDER`. `GEMINI_FALLBACK_MODEL` optionally adds
+a second Gemini model before the app moves to Mistral. The app reads environment variables first
+and then Streamlit secrets.
 
 ```bash
 streamlit run app.py
@@ -72,11 +74,17 @@ control-flow branches. Without those branches, plain Python would be simpler.
 
 ## Model Choice
 
-The default is `gemini-3.5-flash-lite`, configurable with `GEMINI_MODEL`. Google's official model
+The default Gemini model is `gemini-3.5-flash-lite`, configurable with `GEMINI_MODEL`. Google's official model
 page, checked on 2026-11-25, lists it as a stable Flash-Lite model with a 1,048,576-token input
 limit, 65,536-token output limit, structured outputs, and free-tier use. Those properties fit
 long RFPs and the no-payment-card constraint. Temperature is zero and thinking uses the model's
 supported `MINIMAL` level for predictability and latency.
+
+The second provider uses the official Mistral SDK and `mistral-small-latest`, configurable with
+`MISTRAL_MODEL`. Mistral's current catalog maps that alias to a model with a 256k context window.
+Calls use Pydantic-backed JSON-schema output and are queued at least 30 seconds apart for the free
+tier. Both providers retry 429 and 5xx responses with exponential backoff, then fail over in the
+configured order.
 
 All provider access lives in `rfp_agent/llm.py` behind
 `generate_json(prompt, schema) -> validated object`.
@@ -126,14 +134,21 @@ ruff format --check .
 pytest
 ```
 
-Current local result: **23 passed** on Python 3.13.5. The tests cover evidence normalization and
+Current local result: **37 passed** on Python 3.13.5. The tests cover evidence normalization and
 matching, dates, scoring guardrails, radar sorting, RFC 5545 parsing, ingest validation, and both
-LangGraph routes with a FakeLLM.
+LangGraph routes with a FakeLLM, plus provider retry and failover behavior.
 
 Run the two real PDFs with:
 
 ```bash
 python scripts/run_samples.py
+```
+
+Create hash-addressed saved results only through the live pipeline:
+
+```bash
+python scripts/save_precomputed.py samples/example.pdf
+python scripts/compare_providers.py
 ```
 
 | Sample | Expected | Real result | Time |
@@ -146,9 +161,9 @@ Measured locally on 2026-11-25 with `gemini-3.5-flash-lite`; free-tier latency c
 ## Deployment
 
 The target is Streamlit Community Cloud because it is free, deploys directly from GitHub, and
-supports encrypted app secrets. Select `app.py` as the entry point, add `GEMINI_API_KEY` in the
-Cloud secrets editor, and keep `.streamlit/secrets.toml` out of git. No secret is baked into the
-Docker image, cache, report, prompt logs, or CI.
+supports encrypted app secrets. Select `app.py` as the entry point, add the provider API keys in
+the Cloud secrets editor, and keep `.streamlit/secrets.toml` out of git. No secret is baked into
+the Docker image, cache, report, prompt logs, or CI.
 
 ## What Went Wrong And How I Fixed It
 
@@ -166,7 +181,7 @@ you personally observed.
 - Scanned PDFs are rejected. Next: add OCR with page-level confidence and retain physical pages.
 - PDFs over the configured limit are rejected. Next: add verified chunked map-reduce extraction.
 - The model can still miss or misunderstand language. Next: add more golden RFPs and human review.
-- Free-tier quotas can return 429 errors. Next: queue work and add provider fallback through `llm.py`.
+- Free-tier quotas can still exhaust both configured providers during sustained traffic.
 - This is bid triage, not legal advice. Next: add an explicit review/approval workflow.
 
 AI coding assistants were used; the author is responsible for the result and can explain every part.

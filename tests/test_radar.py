@@ -25,63 +25,43 @@ def test_radar_sorts_fail_then_unknown_then_pass():
     assert rows[1]["suggested_question"]
 
 
-def test_radar_assigns_proposal_question_and_rsvp_dates():
+def test_nip_gate_uses_its_own_december_18_date_not_proposal_due():
     extraction = extraction_fixture()
-    extraction.dates.append(
-        extraction.dates[0].model_copy(
-            update={
-                "what": "Questions due",
-                "kind": "QUESTIONS_DUE",
-                "date_text": "December 5, 2026",
-                "date": "2026-12-05",
-            },
-            deep=True,
-        )
-    )
-    extraction.dates.append(
-        extraction.dates[0].model_copy(
-            update={
-                "what": "Email conference RSVP",
-                "kind": "OTHER",
-                "date_text": "December 1, 2026",
-                "date": "2026-12-01",
-            },
-            deep=True,
-        )
-    )
     original = extraction.gate_candidates[0]
     extraction.gate_candidates = [
-        original.model_copy(update={"gate_id": "gate-001", "action_date": "January 10, 2027"}),
         original.model_copy(
             update={
-                "gate_id": "gate-002",
-                "type": "ELIGIBILITY",
-                "title": "Agency waiver",
-                "needs_agency_answer": True,
+                "gate_id": "gate-001",
+                "type": "SUBMISSION_RULES",
+                "title": "Notice of Intent to Propose",
+                "requirement": "Submit the Notice of Intent by December 18, 2026.",
+                "action_date": "2027-01-15",
+                "evidence": Evidence(
+                    quote="Notice of Intent to Propose is due December 18, 2026.", page=1
+                ),
             }
         ),
         original.model_copy(
             update={
-                "gate_id": "gate-003",
-                "type": "MANDATORY_MEETING",
-                "title": "Conference RSVP",
-                "action": "Email RSVP by the stated deadline.",
-                "action_date": "December 2, 2026",
+                "gate_id": "gate-002",
+                "type": "FORMAT_AND_FORMS",
+                "title": "Signed forms",
+                "requirement": "Submit all signed forms.",
+                "action_date": "2027-01-15",
             }
         ),
     ]
     assessment = full_assessment()
     assessment.gates = [
         assessment.gates[0].model_copy(update={"gate_id": f"gate-00{index}"})
-        for index in range(1, 4)
+        for index in range(1, 3)
     ]
 
     rows = build_radar(extraction, assessment, date(2026, 11, 25))
     dates = {row["gate_id"]: row["action_date"] for row in rows}
     assert dates == {
-        "gate-001": "2027-01-15",
-        "gate-002": "2026-12-05",
-        "gate-003": "2026-12-01",
+        "gate-001": "2026-12-18",
+        "gate-002": None,
     }
 
 

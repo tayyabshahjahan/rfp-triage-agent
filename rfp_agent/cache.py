@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 from pathlib import Path
 
-from .config import CACHE_DIR
+from .config import CACHE_DIR, PRECOMPUTED_DIR
 from .schemas import FinalReport
 
 
@@ -15,6 +15,10 @@ def cache_key(file_bytes: bytes, model: str, prompt_version: str) -> str:
     digest.update(model.encode())
     digest.update(prompt_version.encode())
     return digest.hexdigest()
+
+
+def pdf_sha256(file_bytes: bytes) -> str:
+    return hashlib.sha256(file_bytes).hexdigest()
 
 
 def load_cached(key: str, cache_dir: Path = CACHE_DIR) -> FinalReport | None:
@@ -31,3 +35,15 @@ def save_cached(report: FinalReport, key: str, cache_dir: Path = CACHE_DIR) -> N
     cache_dir.mkdir(parents=True, exist_ok=True)
     path = cache_dir / f"{key}.json"
     path.write_text(report.model_dump_json(indent=2), encoding="utf-8")
+
+
+def load_precomputed(
+    file_bytes: bytes, precomputed_dir: Path = PRECOMPUTED_DIR
+) -> FinalReport | None:
+    path = precomputed_dir / f"{pdf_sha256(file_bytes)}.json"
+    if not path.exists():
+        return None
+    try:
+        return FinalReport.model_validate_json(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None

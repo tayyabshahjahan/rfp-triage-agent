@@ -2,19 +2,20 @@
 
 from __future__ import annotations
 
-from datetime import date
+import re
+from datetime import date, datetime
 
 from dateutil import parser
 
-from .schemas import Assessment, Extraction
+from .schemas import Assessment, Extraction, GateCandidate
 
-_PROPOSAL_GATED_TYPES = {
-    "REGISTRATION_OR_CERT",
-    "BONDS_AND_INSURANCE",
-    "SUBMISSION_RULES",
-    "FORMAT_AND_FORMS",
-    "ADDENDUM_ACK",
-}
+_ISO_DATE = re.compile(r"\b\d{4}-\d{2}-\d{2}\b")
+_NUMERIC_DATE = re.compile(r"\b\d{1,2}/\d{1,2}/(?:\d{2}|\d{4})\b")
+_MONTH_DATE = re.compile(
+    r"(?i)\b(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|"
+    r"Jul(?:y)?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|"
+    r"Dec(?:ember)?)\.?\s+\d{1,2}(?:st|nd|rd|th)?(?:,?\s+(?:19|20)\d{2})?\b"
+)
 
 
 def _iso_date(value: object | None) -> str | None:
@@ -30,37 +31,36 @@ def _iso_date(value: object | None) -> str | None:
             return None
 
 
-def _deadline(extraction: Extraction, kind: str) -> str | None:
-    for item in extraction.dates:
-        if item.kind == kind:
-            return _iso_date(item.date)
-    return None
+def _dates_named_in(text: str, default_year: int | None) -> list[str]:
+    matches = [*_ISO_DATE.findall(text), *_NUMERIC_DATE.findall(text)]
+    matches.extend(_MONTH_DATE.findall(text))
+    dates: list[str] = []
+    for match in matches:
+        cleaned = re.sub(r"(?i)(\d)(st|nd|rd|th)\b", r"\1", match)
+        has_year = bool(re.search(r"\b(?:19|20)\d{2}\b", cleaned))
+        if not has_year and default_year is None:
+            continue
+        try:
+            default = datetime(default_year or 2000, 1, 1)
+            normalized = parser.parse(cleaned, default=default).date().isoformat()
+        except (OverflowError, ValueError):
+            continue
+        if normalized not in dates:
+            dates.append(normalized)
+    return dates
 
 
-def _is_rsvp(candidate: object) -> bool:
-    text = " ".join(
-        str(getattr(candidate, field, ""))
-        for field in ("title", "requirement", "action")
-    ).casefold()
-    return "rsvp" in text or "email by" in text
-
-
-def _rsvp_date(extraction: Extraction, action_date: str | None) -> str | None:
-    for item in extraction.dates:
-        text = f"{item.what} {item.date_text} {item.evidence.quote}".casefold()
-        if "rsvp" in text or "email by" in text:
-            return _iso_date(item.date)
-    return _iso_date(action_date)
-
-
-def _gate_action_date(candidate: object, extraction: Extraction) -> str | None:
-    if _is_rsvp(candidate):
-        return _rsvp_date(extraction, getattr(candidate, "action_date", None))
-    if getattr(candidate, "needs_agency_answer", False):
-        return _deadline(extraction, "QUESTIONS_DUE")
-    if getattr(candidate, "type", None) in _PROPOSAL_GATED_TYPES:
-        return _deadline(extraction, "PROPOSAL_DUE")
-    return _iso_date(getattr(candidate, "action_date", None))
+def _gate_action_date(candidate: GateCandidate) -> str | None:
+    proposed = _iso_date(candidate.action_date)
+    default_year = date.fromisoformat(proposed).year if proposed else None
+    named_dates: list[str] = []
+    for text in (candidate.requirement, candidate.evidence.quote):
+        for named_date in _dates_named_in(text, default_year):
+            if named_date not in named_dates:
+                named_dates.append(named_date)
+    if proposed in named_dates:
+        return proposed
+    return named_dates[0] if named_dates else None
 
 
 def _date_status(value: str | None, as_of: date) -> tuple[int | None, str | None]:
@@ -92,7 +92,7 @@ def build_radar(
                 "Please confirm how bidders should demonstrate compliance with this requirement: "
                 f"{candidate.requirement}"
             )
-        action_date = _gate_action_date(candidate, extraction)
+        action_date = _gate_action_date(candidate)
         consequence_evidence = candidate.consequence_evidence
         consequence_verified = bool(
             consequence_evidence is not None and consequence_evidence.verified

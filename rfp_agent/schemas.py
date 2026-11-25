@@ -202,6 +202,9 @@ class TraceEvent(StrictModel):
     status: Literal["ok", "error"]
     seconds: float
     note: str = ""
+    provider: str | None = None
+    model: str | None = None
+    retries: int = 0
 
 
 class FinalReport(BaseModel):
@@ -210,6 +213,7 @@ class FinalReport(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     decision: Literal["BID", "NO_BID"]
+    model_decision: Literal["BID", "NO_BID"] | None = None
     fit_score: int = Field(ge=0, le=10)
     deadlines: list[dict[str, Any]]
     requirements: list[dict[str, Any]]

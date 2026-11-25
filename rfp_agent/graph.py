@@ -9,8 +9,15 @@ from typing import Any, TypedDict
 
 from langgraph.graph import END, START, StateGraph
 
-from .config import GEMINI_MODEL, MAX_REPAIR_ATTEMPTS
-from .llm import LlmError, generate_json
+from .config import MAX_REPAIR_ATTEMPTS
+from .llm import (
+    LlmError,
+    clear_call_metadata,
+    configured_model_signature,
+    consume_call_metadata,
+    generate_json,
+    llm_progress,
+)
 from .pdf_ingest import extract_pdf, number_pages, validate_pages
 from .profile import IDIAZ_PROFILE
 from .prompts import assess_prompt, extract_prompt, recall_prompt, repair_prompt
@@ -48,6 +55,7 @@ class GraphState(TypedDict, total=False):
     attempt: int
     assessment: Assessment
     score: dict[str, object]
+    llm_calls: list[dict[str, object]]
     report: FinalReport
     trace: list[TraceEvent]
     error: str
@@ -75,13 +83,20 @@ def _verified_copy(extraction: Extraction) -> Extraction:
 
 
 class RfpTriagePipeline:
-    def __init__(self, llm: LlmFunction = generate_json, model: str = GEMINI_MODEL):
+    def __init__(self, llm: LlmFunction = generate_json, model: str | None = None):
         self.llm = llm
-        self.model = model
+        self.model = model or configured_model_signature()
         self.graph = self._build_graph()
 
     @staticmethod
-    def _event(state: GraphState, node: str, started: float, note: str = "") -> list[TraceEvent]:
+    def _event(
+        state: GraphState,
+        node: str,
+        started: float,
+        note: str = "",
+        llm_metadata: dict[str, object] | None = None,
+    ) -> list[TraceEvent]:
+        metadata = llm_metadata or {}
         return [
             *state.get("trace", []),
             TraceEvent(
@@ -89,8 +104,26 @@ class RfpTriagePipeline:
                 status="ok",
                 seconds=round(time.perf_counter() - started, 3),
                 note=note,
+                provider=str(metadata["provider"]) if metadata.get("provider") else None,
+                model=str(metadata["model"]) if metadata.get("model") else None,
+                retries=int(metadata.get("retries", 0)),
             ),
         ]
+
+    def _invoke_llm(
+        self,
+        state: GraphState,
+        node: str,
+        prompt: str,
+        schema: type[Any],
+    ) -> tuple[Any, list[dict[str, object]], dict[str, object] | None]:
+        clear_call_metadata()
+        result = self.llm(prompt, schema)
+        metadata = consume_call_metadata()
+        calls = list(state.get("llm_calls", []))
+        if metadata:
+            calls.append({"node": node, **metadata})
+        return result, calls, metadata
 
     def _ingest(self, state: GraphState) -> dict[str, object]:
         started = time.perf_counter()
@@ -108,15 +141,19 @@ class RfpTriagePipeline:
 
     def _analyze(self, state: GraphState) -> dict[str, object]:
         started = time.perf_counter()
-        extraction = self.llm(extract_prompt(state["numbered_text"]), Extraction)
+        extraction, llm_calls, llm_metadata = self._invoke_llm(
+            state, "analyze", extract_prompt(state["numbered_text"]), Extraction
+        )
         ensure_gate_ids(extraction)
         return {
             "extraction": extraction,
+            "llm_calls": llm_calls,
             "trace": self._event(
                 state,
                 "analyze",
                 started,
                 f"{len(extraction.requirements)} requirements",
+                llm_metadata,
             ),
         }
 
@@ -148,7 +185,9 @@ class RfpTriagePipeline:
     def _recall(self, state: GraphState) -> dict[str, object]:
         started = time.perf_counter()
         extraction = state["extraction"]
-        recalled = self.llm(
+        recalled, llm_calls, llm_metadata = self._invoke_llm(
+            state,
+            "recall",
             recall_prompt(
                 state["numbered_text"],
                 [item.model_dump(mode="json") for item in extraction.requirements],
@@ -160,30 +199,47 @@ class RfpTriagePipeline:
         return {
             "extraction": extraction,
             "recall_done": True,
+            "llm_calls": llm_calls,
             "trace": self._event(
                 state,
                 "recall",
                 started,
                 f"{requirements_added} requirements, {dates_added} dates added",
+                llm_metadata,
             ),
         }
 
     def _repair(self, state: GraphState) -> dict[str, object]:
         started = time.perf_counter()
         failing = failing_item_payload(state["extraction"], state["verification"].failing_ids)
-        repaired = self.llm(repair_prompt(state["numbered_text"], failing), RepairResult)
+        repaired, llm_calls, llm_metadata = self._invoke_llm(
+            state,
+            "repair",
+            repair_prompt(state["numbered_text"], failing),
+            RepairResult,
+        )
         apply_patches(state["extraction"], repaired.patches)
         return {
             "extraction": state["extraction"],
             "attempt": state.get("attempt", 0) + 1,
-            "trace": self._event(state, "repair", started, f"{len(repaired.patches)} patches"),
+            "llm_calls": llm_calls,
+            "trace": self._event(
+                state,
+                "repair",
+                started,
+                f"{len(repaired.patches)} patches",
+                llm_metadata,
+            ),
         }
 
     def _assess(self, state: GraphState, *, fast: bool) -> dict[str, object]:
         started = time.perf_counter()
         clean = _verified_copy(state["extraction"])
         prompt = assess_prompt(clean.model_dump_json(), IDIAZ_PROFILE, fast=fast)
-        assessment = self.llm(prompt, Assessment)
+        node = "assess_fast" if fast else "assess_full"
+        assessment, llm_calls, llm_metadata = self._invoke_llm(
+            state, node, prompt, Assessment
+        )
         factor_names = [factor.factor for factor in assessment.fit_factors]
         if fast:
             if factor_names != ["scope_fit"] or assessment.fit_factors[0].score > 1:
@@ -195,10 +251,12 @@ class RfpTriagePipeline:
             "commercial_risk",
         ]:
             raise LlmError("Full assessment returned the wrong fit factors.")
-        node = "assess_fast" if fast else "assess_full"
         return {
             "assessment": assessment,
-            "trace": self._event(state, node, started, assessment.decision),
+            "llm_calls": llm_calls,
+            "trace": self._event(
+                state, node, started, assessment.decision, llm_metadata
+            ),
         }
 
     def _assess_full(self, state: GraphState) -> dict[str, object]:
@@ -209,7 +267,9 @@ class RfpTriagePipeline:
 
     def _guardrails(self, state: GraphState) -> dict[str, object]:
         started = time.perf_counter()
-        score = score_assessment(state["assessment"])
+        score = score_assessment(
+            state["assessment"], state["extraction"].gate_candidates
+        )
         note = f"{score['decision']} {score['fit_score']}/10"
         return {
             "score": score,
@@ -228,6 +288,8 @@ class RfpTriagePipeline:
             model=self.model,
             seconds=total_seconds,
             as_of=state["as_of"],
+            score_result=state["score"],
+            llm_calls=state.get("llm_calls", []),
         )
         return {
             "report": report,
@@ -269,13 +331,26 @@ class RfpTriagePipeline:
     def _run(self, initial: GraphState, progress: ProgressFunction | None = None) -> FinalReport:
         last_trace_count = 0
         final_state: GraphState | None = None
-        for state in self.graph.stream(initial, stream_mode="values"):
-            final_state = state
-            events = state.get("trace", [])
+
+        def provider_progress(message: str) -> None:
             if progress:
-                for event in events[last_trace_count:]:
-                    progress(event)
-            last_trace_count = len(events)
+                progress(
+                    TraceEvent(
+                        node="llm_retry",
+                        status="ok",
+                        seconds=0,
+                        note=message,
+                    )
+                )
+
+        with llm_progress(provider_progress if progress else None):
+            for state in self.graph.stream(initial, stream_mode="values"):
+                final_state = state
+                events = state.get("trace", [])
+                if progress:
+                    for event in events[last_trace_count:]:
+                        progress(event)
+                last_trace_count = len(events)
         if final_state is None or "report" not in final_state:
             raise RuntimeError("The graph ended without a report.")
         return final_state["report"]
@@ -294,6 +369,7 @@ class RfpTriagePipeline:
                 "file_bytes": file_bytes,
                 "attempt": 0,
                 "recall_done": False,
+                "llm_calls": [],
                 "trace": [],
                 "as_of": as_of or date.today(),
                 "started": time.perf_counter(),
@@ -315,6 +391,7 @@ class RfpTriagePipeline:
                 "pages": pages,
                 "attempt": 0,
                 "recall_done": False,
+                "llm_calls": [],
                 "trace": [],
                 "as_of": as_of or date.today(),
                 "started": time.perf_counter(),
