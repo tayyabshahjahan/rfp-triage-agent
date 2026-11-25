@@ -27,9 +27,9 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-Set at least one of `GEMINI_API_KEY` or `MISTRAL_API_KEY`. The default provider order is
-`gemini,mistral`; configure it with `LLM_PROVIDER_ORDER`. `GEMINI_FALLBACK_MODEL` optionally adds
-a second Gemini model before the app moves to Mistral. The app reads environment variables first
+Set at least one of `GEMINI_API_KEY` or `GROQ_API_KEY`. The default provider order is
+`gemini,groq`; configure it with `LLM_PROVIDER_ORDER`. `GEMINI_FALLBACK_MODEL` optionally adds
+a second Gemini model before the app moves to Groq. The app reads environment variables first
 and then Streamlit secrets.
 
 ```bash
@@ -80,10 +80,10 @@ limit, 65,536-token output limit, structured outputs, and free-tier use. Those p
 long RFPs and the no-payment-card constraint. Temperature is zero and thinking uses the model's
 supported `MINIMAL` level for predictability and latency.
 
-The second provider uses the official Mistral SDK and `mistral-small-latest`, configurable with
-`MISTRAL_MODEL`. Mistral's current catalog maps that alias to a model with a 256k context window.
-Calls use Pydantic-backed JSON-schema output and are queued at least 30 seconds apart for the free
-tier. Both providers retry 429 and 5xx responses with exponential backoff, then fail over in the
+The second provider uses the official Groq SDK and `openai/gpt-oss-120b`, configurable with
+`GROQ_MODEL`. Groq's current model page lists a 131,072-token context window, and its rate-limit
+page lists the model under Free Plan limits. Calls use strict JSON-schema structured output.
+Both providers retry 429 and 5xx responses with exponential backoff, then fail over in the
 configured order.
 
 All provider access lives in `rfp_agent/llm.py` behind
@@ -134,7 +134,7 @@ ruff format --check .
 pytest
 ```
 
-Current local result: **37 passed** on Python 3.13.5. The tests cover evidence normalization and
+Current local result: **40 passed** on Python 3.13.5. The tests cover evidence normalization and
 matching, dates, scoring guardrails, radar sorting, RFC 5545 parsing, ingest validation, and both
 LangGraph routes with a FakeLLM, plus provider retry and failover behavior.
 

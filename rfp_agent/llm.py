@@ -5,7 +5,6 @@ from __future__ import annotations
 import logging
 import os
 import random
-import threading
 import time
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
@@ -17,12 +16,11 @@ from pydantic import BaseModel, ValidationError
 from .config import (
     GEMINI_FALLBACK_MODEL,
     GEMINI_MODEL,
+    GROQ_MODEL,
     LLM_MAX_OUTPUT_TOKENS,
     LLM_MAX_RETRIES,
     LLM_PROVIDER_ORDER,
     LLM_TIMEOUT_SECONDS,
-    MISTRAL_MIN_CALL_INTERVAL_SECONDS,
-    MISTRAL_MODEL,
 )
 
 T = TypeVar("T", bound=BaseModel)
@@ -35,8 +33,6 @@ _LAST_CALL_METADATA: ContextVar[dict[str, object] | None] = ContextVar(
 _PROGRESS_CALLBACK: ContextVar[ProviderProgress | None] = ContextVar(
     "llm_progress_callback", default=None
 )
-_MISTRAL_RATE_LOCK = threading.Lock()
-_MISTRAL_LAST_STARTED = 0.0
 
 
 class LlmError(RuntimeError):
@@ -44,7 +40,10 @@ class LlmError(RuntimeError):
 
 
 def get_api_key(provider: str = "gemini") -> str | None:
-    variable = "GEMINI_API_KEY" if provider == "gemini" else "MISTRAL_API_KEY"
+    variables = {"gemini": "GEMINI_API_KEY", "groq": "GROQ_API_KEY"}
+    variable = variables.get(provider)
+    if variable is None:
+        return None
     key = os.getenv(variable)
     if key:
         return key
@@ -61,7 +60,7 @@ def configured_provider_order() -> list[str]:
     providers: list[str] = []
     for item in raw.split(","):
         provider = item.strip().casefold()
-        if provider in {"gemini", "mistral"} and provider not in providers:
+        if provider in {"gemini", "groq"} and provider not in providers:
             providers.append(provider)
     return providers
 
@@ -69,8 +68,8 @@ def configured_provider_order() -> list[str]:
 def provider_model(provider: str) -> str:
     if provider == "gemini":
         return os.getenv("GEMINI_MODEL", GEMINI_MODEL)
-    if provider == "mistral":
-        return os.getenv("MISTRAL_MODEL", MISTRAL_MODEL)
+    if provider == "groq":
+        return os.getenv("GROQ_MODEL", GROQ_MODEL)
     raise ValueError(f"Unsupported LLM provider: {provider}")
 
 
@@ -139,14 +138,19 @@ def _provider_schema(schema: type[T]) -> dict[str, object]:
     return clean(schema.model_json_schema())
 
 
-def _mistral_schema(schema: type[T]) -> dict[str, object]:
+def _strict_provider_schema(schema: type[T]) -> dict[str, object]:
     """Make every object strict without dropping numeric schema constraints."""
 
     def clean(value: Any) -> Any:
         if isinstance(value, dict):
-            result = {key: clean(child) for key, child in value.items()}
+            result = {
+                key: clean(child)
+                for key, child in value.items()
+                if key != "default"
+            }
             if result.get("type") == "object":
                 result["additionalProperties"] = False
+                result["required"] = list(result.get("properties", {}))
             return result
         if isinstance(value, list):
             return [clean(child) for child in value]
@@ -195,45 +199,38 @@ def _call_gemini(prompt: str, schema: type[T], model: str, api_key: str) -> T:
     return schema.model_validate_json(response.text)
 
 
-def _wait_for_mistral_slot() -> None:
-    global _MISTRAL_LAST_STARTED
+def _call_groq(prompt: str, schema: type[T], model: str, api_key: str) -> T:
+    from groq import Groq
 
-    with _MISTRAL_RATE_LOCK:
-        elapsed = time.monotonic() - _MISTRAL_LAST_STARTED
-        wait_seconds = max(0.0, MISTRAL_MIN_CALL_INTERVAL_SECONDS - elapsed)
-        if wait_seconds:
-            time.sleep(wait_seconds)
-        _MISTRAL_LAST_STARTED = time.monotonic()
-
-
-def _call_mistral(prompt: str, schema: type[T], model: str, api_key: str) -> T:
-    from mistralai import Mistral
-    from mistralai.models import JSONSchema, ResponseFormat
-
-    _wait_for_mistral_slot()
-    client = Mistral(api_key=api_key, timeout_ms=LLM_TIMEOUT_SECONDS * 1_000)
-    started = time.perf_counter()
-    response_format = ResponseFormat(
-        type="json_schema",
-        json_schema=JSONSchema(
-            name=schema.__name__,
-            schema_definition=_mistral_schema(schema),
-            strict=True,
-        ),
+    client = Groq(
+        api_key=api_key,
+        timeout=LLM_TIMEOUT_SECONDS,
+        max_retries=0,
     )
-    response = client.chat.complete(
+    started = time.perf_counter()
+    response = client.chat.completions.create(
         model=model,
         messages=[{"role": "user", "content": prompt}],
-        response_format=response_format,
+        response_format={
+            "type": "json_schema",
+            "json_schema": {
+                "name": schema.__name__,
+                "strict": True,
+                "schema": _strict_provider_schema(schema),
+            },
+        },
         temperature=0,
-        max_tokens=LLM_MAX_OUTPUT_TOKENS,
+        max_completion_tokens=LLM_MAX_OUTPUT_TOKENS,
+        reasoning_effort="low",
     )
     LOGGER.info(
-        "Mistral call model=%s seconds=%.2f",
+        "Groq call model=%s seconds=%.2f",
         model,
         time.perf_counter() - started,
     )
     message = response.choices[0].message
+    if not message.content:
+        raise ValueError("Groq returned an empty structured response.")
     return schema.model_validate_json(message.content)
 
 
@@ -246,8 +243,8 @@ def _call_provider(
 ) -> T:
     if provider == "gemini":
         return _call_gemini(prompt, schema, model, api_key)
-    if provider == "mistral":
-        return _call_mistral(prompt, schema, model, api_key)
+    if provider == "groq":
+        return _call_groq(prompt, schema, model, api_key)
     raise ValueError(f"Unsupported LLM provider: {provider}")
 
 
